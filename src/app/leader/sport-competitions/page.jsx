@@ -19,8 +19,6 @@ const competitionsData = [
   { id: "football_girls_grade12", name: "كرة القدم - بنات - أولي وثانية ابتدائي", pricePerUnit: 200, countLabel: "عدد الفرق" },
   { id: "football_girls_grade34", name: "كرة القدم - بنات - ثالثة ورابعة ابتدائي", pricePerUnit: 200, countLabel: "عدد الفرق" },
   { id: "football_girls_grade56", name: "كرة القدم - بنات - خامسة وسادسة ابتدائي", pricePerUnit: 200, countLabel: "عدد الفرق" },
-      ],
-  },
   { id: "volleyball_boys_grade0", name: "الكرة الطائرة - بنين - حضانة", pricePerUnit: 200, countLabel: "عدد الفرق" },
   { id: "volleyball_boys_grade12", name: "الكرة الطائرة - بنين - أولي وثانية ابتدائي", pricePerUnit: 200, countLabel: "عدد الفرق" },
   { id: "volleyball_boys_grade34", name: "الكرة الطائرة - بنين - ثالثة ورابعة ابتدائي", pricePerUnit: 200, countLabel: "عدد الفرق" },
@@ -77,7 +75,8 @@ const competitionsData = [
   { id: "connect4_girls_grade12", name: "كونكت فور - بنات - فردي - أولي وثانية ابتدائي", pricePerUnit: 30 },
   { id: "connect4_girls_grade34", name: "كونكت فور - بنات - فردي - ثالثة ورابعة ابتدائي", pricePerUnit: 30 },
   { id: "connect4_girls_grade56", name: "كونكت فور - بنات - فردي - خامسة وسادسة ابتدائي", pricePerUnit: 30 },
-
+    ],
+  },
 ];
 
 export default function SportCompetitionsPage() {
