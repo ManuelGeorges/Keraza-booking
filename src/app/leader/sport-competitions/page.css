@@ -1,5 +1,10 @@
 /* page.css */
-
+*{
+    scroll-behavior: smooth;
+}
+body{
+    scroll-behavior: smooth;
+}
 .sport-container {
   max-width: 900px;
   margin: 40px auto;
@@ -214,4 +219,137 @@
     font-size: 0.9rem;
     padding: 8px 12px;
   }
+}
+/* Navbar فوق */
+.other-navbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 25px;
+  background: #f3f6ff;
+  padding: 10px 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 0.1);
+  justify-content: center;
+}
+
+.other-navbar-link {
+  color: #3751ff;
+  font-weight: 600;
+  text-decoration: none;
+  padding: 6px 14px;
+  border-radius: 6px;
+  transition: background-color 0.2s ease;
+}
+
+.other-navbar-link:hover,
+.other-navbar-link:focus {
+  background-color: #3751ff;
+  color: white;
+  outline: none;
+}
+
+/* كل قسم h2 */
+.other-section {
+  margin-bottom: 40px;
+  padding-top: 40px; /* علشان navbar مايغطيش العنوان لما تروح له */
+  scroll-margin-top: 90px;
+}
+
+.other-section-title {
+  font-size: 28px;
+  color: #2b2b2b;
+  border-bottom: 3px solid #3751ff;
+  padding-bottom: 6px;
+  margin-bottom: 20px;
+}
+
+/* تحسين بعض العناصر في الـ cards */
+.other-card {
+  background-color: #fff;
+  border-radius: 14px;
+  box-shadow: 0 3px 15px rgb(55 81 255 / 0.15);
+  padding: 20px;
+  margin-bottom: 18px;
+  transition: box-shadow 0.3s ease;
+}
+
+.other-card:hover {
+  box-shadow: 0 6px 20px rgb(55 81 255 / 0.3);
+}
+
+.other-card-title {
+  margin-bottom: 8px;
+  font-size: 22px;
+  color: #222;
+}
+
+.other-card-price {
+  margin-bottom: 15px;
+  color: #555;
+  font-weight: 500;
+}
+
+/* input and buttons styling */
+.other-input-section {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.other-checkbox-label {
+  font-weight: 600;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.other-input-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.other-input {
+  width: 120px;
+  padding: 6px 10px;
+  font-size: 16px;
+  border-radius: 8px;
+  border: 1.8px solid #ccc;
+  outline-offset: 2px;
+  transition: border-color 0.25s ease;
+}
+
+.other-input:focus {
+  border-color: #3751ff;
+}
+
+.other-add-btn,
+.other-submit-btn {
+  background-color: #3751ff;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 15px;
+  transition: background-color 0.3s ease;
+}
+
+.other-add-btn:hover,
+.other-submit-btn:hover {
+  background-color: #223ec9;
+}
+
+.other-fixed-count {
+  font-weight: 600;
+  font-size: 16px;
+  color: #555;
+}
+
+.other-count-info {
+  margin-top: 12px;
+  font-size: 16px;
+  color: #222;
 }
