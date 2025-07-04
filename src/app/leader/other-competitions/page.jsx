@@ -16,7 +16,7 @@ const competitionsData = [
   },
   {
     sectionId: "rouhi_alex",
-    sectionTitle: "مسابقة روحى الأسكندرية",
+    sectionTitle: "مسابقة الروحي الجماعي علي مستوي الأسكندرية",
     items: [
       { id: "rouhi_alex_kindergarten_1", name: "مرحلة حضانة - الفريق الأول", pricePerUnit: 100 , isTeamCheckbox: true,},
       { id: "rouhi_alex_grade1_2_1", name: "مرحلة أولى وثانية ابتدائي - الفريق الأول", pricePerUnit: 100 , isTeamCheckbox: true, },
@@ -26,6 +26,16 @@ const competitionsData = [
       { id: "rouhi_alex_grade1_2_extra", name: "مرحلة أولى وثانية ابتدائي - الفريق الإضافي", pricePerUnit: 75 ,countLabel: "عدد الفرق" },
       { id: "rouhi_alex_grade3_4_extra", name: "مرحلة ثالثة ورابعة ابتدائي - الفريق الإضافي", pricePerUnit: 75 ,countLabel: "عدد الفرق" },
       { id: "rouhi_alex_grade5_6_extra", name: "مرحلة خامسة وسادسة ابتدائي - الفريق الإضافي", pricePerUnit: 75 , countLabel: "عدد الفرق" },
+    ],
+  },
+    {
+    sectionId: "coptic_alex",
+    sectionTitle: "مسابقة اللغة القبطية على مستوي الأسكندرية",
+    items: [
+      { id: "coptic_alex_kindergarten", name: "مرحلة حضانة", pricePerUnit: 100 , countLabel: "عدد الفرق" },
+      { id: "coptic_alex_grade1_2", name: "مرحلة أولى وثانية ابتدائي", pricePerUnit: 100 ,countLabel: "عدد الفرق" },
+      { id: "coptic_alex_grade3_4", name: "مرحلة ثالثة ورابعة ابتدائي", pricePerUnit: 100 ,countLabel: "عدد الفرق" },
+      { id: "coptic_alex_grade5_6", name: "مرحلة خامسة وسادسة ابتدائي", pricePerUnit: 100 , countLabel: "عدد الفرق" },
     ],
   },
   {
