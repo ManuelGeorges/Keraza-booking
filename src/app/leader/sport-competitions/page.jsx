@@ -7,14 +7,14 @@ import { doc, getDoc, setDoc, onSnapshot } from "firebase/firestore";
 import "./page.css";
 
 const competitionsData = [
-  { id: "football_boys", name: "كرة القدم - بنين - حضانة", pricePerUnit: 200, countLabel: "عدد الفرق" },
-  { id: "football_boys", name: "كرة القدم - بنين - أولي وثانية ابتدائي", pricePerUnit: 200, countLabel: "عدد الفرق" },
-  { id: "football_boys", name: "كرة القدم - بنين - ثالثة ورابعة ابتدائي", pricePerUnit: 200, countLabel: "عدد الفرق" },
-  { id: "football_boys", name: "كرة القدم - بنين - خامسة وسادسة ابتدائي", pricePerUnit: 200, countLabel: "عدد الفرق" },
-  { id: "football_boys", name: "كرة القدم - بنات - حضانة", pricePerUnit: 200, countLabel: "عدد الفرق" },
-  { id: "football_boys", name: "كرة القدم - بنات - أولي وثانية ابتدائي", pricePerUnit: 200, countLabel: "عدد الفرق" },
-  { id: "football_boys", name: "كرة القدم - بنات - ثالثة ورابعة ابتدائي", pricePerUnit: 200, countLabel: "عدد الفرق" },
-  { id: "football_boys", name: "كرة القدم - بنات - خامسة وسادسة ابتدائي", pricePerUnit: 200, countLabel: "عدد الفرق" },
+  { id: "football_boys_grade0", name: "كرة القدم - بنين - حضانة", pricePerUnit: 200, countLabel: "عدد الفرق" },
+  { id: "football_boys_grade12", name: "كرة القدم - بنين - أولي وثانية ابتدائي", pricePerUnit: 200, countLabel: "عدد الفرق" },
+  { id: "football_boys_grade34", name: "كرة القدم - بنين - ثالثة ورابعة ابتدائي", pricePerUnit: 200, countLabel: "عدد الفرق" },
+  { id: "football_boys_grade56", name: "كرة القدم - بنين - خامسة وسادسة ابتدائي", pricePerUnit: 200, countLabel: "عدد الفرق" },
+  { id: "football_boys_grade0", name: "كرة القدم - بنات - حضانة", pricePerUnit: 200, countLabel: "عدد الفرق" },
+  { id: "football_boys_grade12", name: "كرة القدم - بنات - أولي وثانية ابتدائي", pricePerUnit: 200, countLabel: "عدد الفرق" },
+  { id: "football_boys_grade34", name: "كرة القدم - بنات - ثالثة ورابعة ابتدائي", pricePerUnit: 200, countLabel: "عدد الفرق" },
+  { id: "football_boys_grade56", name: "كرة القدم - بنات - خامسة وسادسة ابتدائي", pricePerUnit: 200, countLabel: "عدد الفرق" },
   { id: "volleyball_boys", name: "الكرة الطائرة - بنين - حضانة", pricePerUnit: 200, countLabel: "عدد الفرق" },
   { id: "volleyball_boys", name: "الكرة الطائرة - بنين - أولي وثانية ابتدائي", pricePerUnit: 200, countLabel: "عدد الفرق" },
   { id: "volleyball_boys", name: "الكرة الطائرة - بنين - ثالثة ورابعة ابتدائي", pricePerUnit: 200, countLabel: "عدد الفرق" },
