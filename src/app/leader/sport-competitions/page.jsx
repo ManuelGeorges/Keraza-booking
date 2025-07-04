@@ -7,7 +7,10 @@ import { doc, getDoc, setDoc, onSnapshot } from "firebase/firestore";
 import "./page.css";
 
 const competitionsData = [
-  { id: "football_boys", name: "كرة القدم - بنين", pricePerUnit: 200, countLabel: "عدد الفرق" },
+  { id: "football_boys", name: "كرة القدم - بنين - حضانة", pricePerUnit: 200, countLabel: "عدد الفرق" },
+  { id: "football_boys", name: "كرة القدم - بنين - أولي وثانية ابتدائي", pricePerUnit: 200, countLabel: "عدد الفرق" },
+  { id: "football_boys", name: "كرة القدم - بنين - ثالثة ورابعة ابتدائي", pricePerUnit: 200, countLabel: "عدد الفرق" },
+  { id: "football_boys", name: "كرة القدم - بنين - خامسة وسادسة ابتدائي", pricePerUnit: 200, countLabel: "عدد الفرق" },
   { id: "football_girls", name: "كرة القدم - بنات", pricePerUnit: 200, countLabel: "عدد الفرق" },
   { id: "volleyball_boys", name: "الكرة الطائرة - بنين", pricePerUnit: 200, countLabel: "عدد الفرق" },
   { id: "volleyball_girls", name: "الكرة الطائرة - بنات", pricePerUnit: 200, countLabel: "عدد الفرق" },
