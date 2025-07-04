@@ -7,6 +7,10 @@ import { doc, getDoc, setDoc, onSnapshot } from "firebase/firestore";
 import "./page.css";
 
 const competitionsData = [
+  {
+    sectionId: "festival",
+    sectionTitle: "اشتراك حجز المهرجان",
+    items: [
   { id: "football_boys_grade0", name: "كرة القدم - بنين - حضانة", pricePerUnit: 200, countLabel: "عدد الفرق" },
   { id: "football_boys_grade12", name: "كرة القدم - بنين - أولي وثانية ابتدائي", pricePerUnit: 200, countLabel: "عدد الفرق" },
   { id: "football_boys_grade34", name: "كرة القدم - بنين - ثالثة ورابعة ابتدائي", pricePerUnit: 200, countLabel: "عدد الفرق" },
@@ -15,6 +19,8 @@ const competitionsData = [
   { id: "football_girls_grade12", name: "كرة القدم - بنات - أولي وثانية ابتدائي", pricePerUnit: 200, countLabel: "عدد الفرق" },
   { id: "football_girls_grade34", name: "كرة القدم - بنات - ثالثة ورابعة ابتدائي", pricePerUnit: 200, countLabel: "عدد الفرق" },
   { id: "football_girls_grade56", name: "كرة القدم - بنات - خامسة وسادسة ابتدائي", pricePerUnit: 200, countLabel: "عدد الفرق" },
+ ],
+},
   { id: "volleyball_boys_grade0", name: "الكرة الطائرة - بنين - حضانة", pricePerUnit: 200, countLabel: "عدد الفرق" },
   { id: "volleyball_boys_grade12", name: "الكرة الطائرة - بنين - أولي وثانية ابتدائي", pricePerUnit: 200, countLabel: "عدد الفرق" },
   { id: "volleyball_boys_grade34", name: "الكرة الطائرة - بنين - ثالثة ورابعة ابتدائي", pricePerUnit: 200, countLabel: "عدد الفرق" },
