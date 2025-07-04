@@ -7,10 +7,6 @@ import { doc, getDoc, setDoc, onSnapshot } from "firebase/firestore";
 import "./page.css";
 
 const competitionsData = [
-   {
-    sectionId: "football",
-    sectionTitle: "مسابقة كرة القدم",
-    items: [
   { id: "football_boys_grade0", name: "كرة القدم - بنين - حضانة", pricePerUnit: 200, countLabel: "عدد الفرق" },
   { id: "football_boys_grade12", name: "كرة القدم - بنين - أولي وثانية ابتدائي", pricePerUnit: 200, countLabel: "عدد الفرق" },
   { id: "football_boys_grade34", name: "كرة القدم - بنين - ثالثة ورابعة ابتدائي", pricePerUnit: 200, countLabel: "عدد الفرق" },
@@ -75,8 +71,6 @@ const competitionsData = [
   { id: "connect4_girls_grade12", name: "كونكت فور - بنات - فردي - أولي وثانية ابتدائي", pricePerUnit: 30 },
   { id: "connect4_girls_grade34", name: "كونكت فور - بنات - فردي - ثالثة ورابعة ابتدائي", pricePerUnit: 30 },
   { id: "connect4_girls_grade56", name: "كونكت فور - بنات - فردي - خامسة وسادسة ابتدائي", pricePerUnit: 30 },
-    ],
-  },
 ];
 
 export default function SportCompetitionsPage() {
