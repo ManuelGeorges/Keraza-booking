@@ -126,9 +126,17 @@ export default function RegisterPage() {
 
     } catch (err) {
       console.error(err);
-      if (err.code === "auth/email-already-in-use") {
-        setMessage("❌ الإيميل ده متسجل قبل كده. جرّب تستخدم إيميل مختلف.");
-      } else if (err.code === "auth/weak-password") {
+if (err.code === "auth/email-already-in-use") {
+  setMessage(
+    <>
+      ❌ هذا الإيميل مستخدم بالفعل.{" "}
+      <a href="/login" className="reg-inline-link">
+        سجّل الدخول بدلًا من ذلك
+      </a>
+    </>
+  );
+}
+ else if (err.code === "auth/weak-password") {
         setMessage("❌ كلمة السر ضعيفة. لازم تكون 6 حروف أو أكتر.");
       } else {
         setMessage("❌ حصل خطأ أثناء التسجيل. حاول مرة تانية.");
