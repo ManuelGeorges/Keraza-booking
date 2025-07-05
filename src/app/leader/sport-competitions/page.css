@@ -16,6 +16,39 @@ body{
   color: #0a2342;
   transition: background-color 0.4s ease;
 }
+.sport-navbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 25px;
+  background: #f3f6ff;
+  padding: 10px 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 0.1);
+  justify-content: center;
+}
+
+.sport-navbar-link {
+  color: #3751ff;
+  font-weight: 600;
+  text-decoration: none;
+  padding: 6px 14px;
+  border-radius: 6px;
+  transition: background-color 0.2s ease;
+}
+
+.sport-navbar-link:hover,
+.sport-navbar-link:focus {
+  background-color: #3751ff;
+  color: white;
+  outline: none;
+}
+
+.sport-section-title {
+  margin-top: 80px;
+  font-size: 1.5rem;
+  color: #444;
+}
 
 .sport-title {
   font-size: 2.8rem;

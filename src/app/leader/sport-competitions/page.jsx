@@ -11,7 +11,7 @@ const competitionsData = [
   { id: "football_boys_grade12", name: "كرة القدم - بنين - أولي وثانية ابتدائي", pricePerUnit: 200, countLabel: "عدد الفرق" },
   { id: "football_boys_grade34", name: "كرة القدم - بنين - ثالثة ورابعة ابتدائي", pricePerUnit: 200, countLabel: "عدد الفرق" },
   { id: "football_boys_grade56", name: "كرة القدم - بنين - خامسة وسادسة ابتدائي", pricePerUnit: 200, countLabel: "عدد الفرق" },
-  { id: "football_boys_grade0", name: "كرة القدم - بنات - حضانة", pricePerUnit: 200, countLabel: "عدد الفرق" },
+  { id: "football_girls_grade0", name: "كرة القدم - بنات - حضانة", pricePerUnit: 200, countLabel: "عدد الفرق" },
   { id: "football_girls_grade12", name: "كرة القدم - بنات - أولي وثانية ابتدائي", pricePerUnit: 200, countLabel: "عدد الفرق" },
   { id: "football_girls_grade34", name: "كرة القدم - بنات - ثالثة ورابعة ابتدائي", pricePerUnit: 200, countLabel: "عدد الفرق" },
   { id: "football_girls_grade56", name: "كرة القدم - بنات - خامسة وسادسة ابتدائي", pricePerUnit: 200, countLabel: "عدد الفرق" },
@@ -27,34 +27,34 @@ const competitionsData = [
   { id: "table_tennis_boys_individual_grade12", name: "تنس الطاولة - بنين - فردي - أولي وثانية ابتدائي", pricePerUnit: 30 },
   { id: "table_tennis_boys_individual_grade34", name: "تنس الطاولة - بنين - فردي - ثالثة ورابعة ابتدائي", pricePerUnit: 30 },  
   { id: "table_tennis_boys_individual_grade56", name: "تنس الطاولة - بنين - فردي - خامسة وسادسة ابتدائي", pricePerUnit: 30 },
-  { id: "table_tennis_boys_individual_grade0", name: "تنس الطاولة - بنين - جماعي - حضانة", pricePerUnit: 200, countLabel: "عدد الفرق" },   
-  { id: "table_tennis_boys_individual_grade12", name: "تنس الطاولة - بنين - جماعي - أولي وثانية ابتدائي", pricePerUnit: 200, countLabel: "عدد الفرق" },
-  { id: "table_tennis_boys_individual_grade34", name: "تنس الطاولة - بنين - جماعي - ثالثة ورابعة ابتدائي", pricePerUnit: 200, countLabel: "عدد الفرق" },  
-  { id: "table_tennis_boys_individual_grade56", name: "تنس الطاولة - بنين - جماعي - خامسة وسادسة ابتدائي", pricePerUnit: 200, countLabel: "عدد الفرق" },
+  { id: "table_tennis_boys_group_grade0", name: "تنس الطاولة - بنين - جماعي - حضانة", pricePerUnit: 200, countLabel: "عدد الفرق" },   
+  { id: "table_tennis_boys_group_grade12", name: "تنس الطاولة - بنين - جماعي - أولي وثانية ابتدائي", pricePerUnit: 200, countLabel: "عدد الفرق" },
+  { id: "table_tennis_boys_group_grade34", name: "تنس الطاولة - بنين - جماعي - ثالثة ورابعة ابتدائي", pricePerUnit: 200, countLabel: "عدد الفرق" },  
+  { id: "table_tennis_boys_group_grade56", name: "تنس الطاولة - بنين - جماعي - خامسة وسادسة ابتدائي", pricePerUnit: 200, countLabel: "عدد الفرق" },
   { id: "table_tennis_girls_individual_grade0", name: "تنس الطاولة - بنات - فردي - حضانة", pricePerUnit: 30 },   
   { id: "table_tennis_girls_individual_grade12", name: "تنس الطاولة - بنات - فردي - أولي وثانية ابتدائي", pricePerUnit: 30 },
   { id: "table_tennis_girls_individual_grade34", name: "تنس الطاولة - بنات - فردي - ثالثة ورابعة ابتدائي", pricePerUnit: 30 },  
   { id: "table_tennis_girls_individual_grade56", name: "تنس الطاولة - بنات - فردي - خامسة وسادسة ابتدائي", pricePerUnit: 30 },
-  { id: "table_tennis_girls_individual_grade0", name: "تنس الطاولة - بنات - جماعي - حضانة", pricePerUnit: 200, countLabel: "عدد الفرق" },   
-  { id: "table_tennis_girls_individual_grade12", name: "تنس الطاولة - بنات - جماعي - أولي وثانية ابتدائي", pricePerUnit: 200, countLabel: "عدد الفرق" },
-  { id: "table_tennis_girls_individual_grade34", name: "تنس الطاولة - بنات - جماعي - ثالثة ورابعة ابتدائي", pricePerUnit: 200, countLabel: "عدد الفرق" },  
-  { id: "table_tennis_girls_individual_grade56", name: "تنس الطاولة - بنات - جماعي - خامسة وسادسة ابتدائي", pricePerUnit: 200, countLabel: "عدد الفرق" },
+  { id: "table_tennis_girls_group_grade0", name: "تنس الطاولة - بنات - جماعي - حضانة", pricePerUnit: 200, countLabel: "عدد الفرق" },   
+  { id: "table_tennis_girls_group_grade12", name: "تنس الطاولة - بنات - جماعي - أولي وثانية ابتدائي", pricePerUnit: 200, countLabel: "عدد الفرق" },
+  { id: "table_tennis_girls_group_grade34", name: "تنس الطاولة - بنات - جماعي - ثالثة ورابعة ابتدائي", pricePerUnit: 200, countLabel: "عدد الفرق" },  
+  { id: "table_tennis_girls_group_grade56", name: "تنس الطاولة - بنات - جماعي - خامسة وسادسة ابتدائي", pricePerUnit: 200, countLabel: "عدد الفرق" },
   { id: "chess_boys_individual_grade0", name: "الشطرنج - بنين - فردي - حضانة", pricePerUnit: 30 },   
   { id: "chess_boys_individual_grade12", name: "الشطرنج - بنين - فردي - أولي وثانية ابتدائي", pricePerUnit: 30 },
   { id: "chess_boys_individual_grade34", name: "الشطرنج - بنين - فردي - ثالثة ورابعة ابتدائي", pricePerUnit: 30 },  
   { id: "chess_boys_individual_grade56", name: "الشطرنج - بنين - فردي - خامسة وسادسة ابتدائي", pricePerUnit: 30 },
-  { id: "chess_boys_individual_grade0", name: "الشطرنج - بنين - جماعي - حضانة", pricePerUnit: 200, countLabel: "عدد الفرق" },   
-  { id: "chess_boys_individual_grade12", name: "الشطرنج - بنين - جماعي - أولي وثانية ابتدائي", pricePerUnit: 200, countLabel: "عدد الفرق" },
-  { id: "chess_boys_individual_grade34", name: "الشطرنج - بنين - جماعي - ثالثة ورابعة ابتدائي", pricePerUnit: 200, countLabel: "عدد الفرق" },  
-  { id: "chess_boys_individual_grade56", name: "الشطرنج - بنين - جماعي - خامسة وسادسة ابتدائي", pricePerUnit: 200, countLabel: "عدد الفرق" },
+  { id: "chess_boys_group_grade0", name: "الشطرنج - بنين - جماعي - حضانة", pricePerUnit: 200, countLabel: "عدد الفرق" },   
+  { id: "chess_boys_group_grade12", name: "الشطرنج - بنين - جماعي - أولي وثانية ابتدائي", pricePerUnit: 200, countLabel: "عدد الفرق" },
+  { id: "chess_boys_group_grade34", name: "الشطرنج - بنين - جماعي - ثالثة ورابعة ابتدائي", pricePerUnit: 200, countLabel: "عدد الفرق" },  
+  { id: "chess_boys_group_grade56", name: "الشطرنج - بنين - جماعي - خامسة وسادسة ابتدائي", pricePerUnit: 200, countLabel: "عدد الفرق" },
   { id: "chess_girls_individual_grade0", name: "الشطرنج - بنات - فردي - حضانة", pricePerUnit: 30 },   
   { id: "chess_girls_individual_grade12", name: "الشطرنج - بنات - فردي - أولي وثانية ابتدائي", pricePerUnit: 30 },
   { id: "chess_girls_individual_grade34", name: "الشطرنج - بنات - فردي - ثالثة ورابعة ابتدائي", pricePerUnit: 30 },  
   { id: "chess_girls_individual_grade56", name: "الشطرنج - بنات - فردي - خامسة وسادسة ابتدائي", pricePerUnit: 30 },
-  { id: "chess_girls_individual_grade0", name: "الشطرنج - بنات - جماعي - حضانة", pricePerUnit: 200, countLabel: "عدد الفرق" },   
-  { id: "chess_girls_individual_grade12", name: "الشطرنج - بنات - جماعي - أولي وثانية ابتدائي", pricePerUnit: 200, countLabel: "عدد الفرق" },
-  { id: "chess_girls_individual_grade34", name: "الشطرنج - بنات - جماعي - ثالثة ورابعة ابتدائي", pricePerUnit: 200, countLabel: "عدد الفرق" },  
-  { id: "chess_girls_individual_grade56", name: "الشطرنج - بنات - جماعي - خامسة وسادسة ابتدائي", pricePerUnit: 200, countLabel: "عدد الفرق" },
+  { id: "chess_girls_group_grade0", name: "الشطرنج - بنات - جماعي - حضانة", pricePerUnit: 200, countLabel: "عدد الفرق" },   
+  { id: "chess_girls_group_grade12", name: "الشطرنج - بنات - جماعي - أولي وثانية ابتدائي", pricePerUnit: 200, countLabel: "عدد الفرق" },
+  { id: "chess_girls_group_grade34", name: "الشطرنج - بنات - جماعي - ثالثة ورابعة ابتدائي", pricePerUnit: 200, countLabel: "عدد الفرق" },  
+  { id: "chess_girls_group_grade56", name: "الشطرنج - بنات - جماعي - خامسة وسادسة ابتدائي", pricePerUnit: 200, countLabel: "عدد الفرق" },
   { id: "running_boys_grade0", name: "جري - بنين - فردي - حضانة", pricePerUnit: 30 },
   { id: "running_boys_grade12", name: "جري - بنين - فردي - أولي وثانية ابتدائي", pricePerUnit: 30 },
   { id: "running_boys_grade34", name: "جري - بنين - فردي - ثالثة ورابعة ابتدائي", pricePerUnit: 30 },
@@ -79,6 +79,8 @@ export default function SportCompetitionsPage() {
   const [inputs, setInputs] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const sections = [...new Set(competitionsData.map(c => c.name.split(" - ")[0]))];
+
 
   useEffect(() => {
     const unsubscribeAuth = onAuthStateChanged(auth, async (user) => {
@@ -178,62 +180,76 @@ export default function SportCompetitionsPage() {
   return (
     <div className="sport-container">
       <h1 className="sport-title">المسابقات الرياضية</h1>
+<nav className="sport-navbar">
+  {sections.map((section, index) => (
+    <a key={index} href={`#${section}`} className="sport-navbar-link">
+      {section}
+    </a>
+  ))}
+</nav>
 
       <div className="sport-total-cost">
         التكلفة الإجمالية لجميع المسابقات:{" "}
         <span>{counts.totalPayment.toLocaleString()} جـ</span>
       </div>
 
-      <div className="sport-cards">
-        {competitionsData.map(({ id, name, pricePerUnit, countLabel }) => {
-          const competition = counts.competitions[id];
-          return (
-            <div key={id} className="sport-card">
-              <h3 className="sport-card-title">{name}</h3>
-              <p className="sport-card-price">سعر الاشتراك: {pricePerUnit} جـ</p>
+{sections.map((section) => (
+  <div key={section}>
+    <h2 id={section} className="sport-section-title">{section}</h2>
+    
+    {competitionsData
+      .filter(c => c.name.startsWith(section))
+      .map(({ id, name, pricePerUnit, countLabel }) => {
+        const competition = counts.competitions[id];
+        return (
+          <div key={id} className="sport-card">
+            <h3 className="sport-card-title">{name}</h3>
+            <p className="sport-card-price">سعر الاشتراك: {pricePerUnit} جـ</p>
 
-              <div className="sport-input-section">
-                <button
-                  className="sport-add-btn"
-                  onClick={() =>
-                    setInputs((prev) => ({ ...prev, [id]: inputs[id] ?? "" }))
-                  }
-                >
-                  ادخل {countLabel || "عدد المشتركين"}
-                </button>
+            <div className="sport-input-section">
+              <button
+                className="sport-add-btn"
+                onClick={() =>
+                  setInputs((prev) => ({ ...prev, [id]: inputs[id] ?? "" }))
+                }
+              >
+                ادخل {countLabel || "عدد المشتركين"}
+              </button>
 
-                {inputs[id] !== undefined && (
-                  <div className="sport-input-wrapper">
-                    <input
-                      type="text"
-                      inputMode="numeric"
-                      pattern="[0-9]*"
-                      className="sport-input"
-                      placeholder={`ادخل ${countLabel || "عدد المشتركين"}`}
-                      value={inputs[id]}
-                      onChange={(e) => handleInputChange(id, e.target.value)}
-                    />
-                    <button
-                      className="sport-submit-btn"
-                      onClick={() => handleSubmit(id)}
-                    >
-                      حفظ
-                    </button>
-                  </div>
-                )}
+              {inputs[id] !== undefined && (
+                <div className="sport-input-wrapper">
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                    className="sport-input"
+                    placeholder={`ادخل ${countLabel || "عدد المشتركين"}`}
+                    value={inputs[id]}
+                    onChange={(e) => handleInputChange(id, e.target.value)}
+                  />
+                  <button
+                    className="sport-submit-btn"
+                    onClick={() => handleSubmit(id)}
+                  >
+                    حفظ
+                  </button>
+                </div>
+              )}
 
-                {competition && (
-                  <p className="sport-count-info">
-                    {countLabel || "عدد المشتركين"}:{" "}
-                    <strong>{competition.count}</strong> - التكلفة:{" "}
-                    <strong>{competition.totalPrice.toLocaleString()} جـ</strong>
-                  </p>
-                )}
-              </div>
+              {competition && (
+                <p className="sport-count-info">
+                  {countLabel || "عدد المشتركين"}:{" "}
+                  <strong>{competition.count}</strong> - التكلفة:{" "}
+                  <strong>{competition.totalPrice.toLocaleString()} جـ</strong>
+                </p>
+              )}
             </div>
-          );
-        })}
-      </div>
+          </div>
+        );
+      })}
+  </div>
+))}
     </div>
   );
 }
+
