@@ -72,6 +72,15 @@ const competitionsData = [
   { id: "connect4_girls_grade34", name: "كونكت فور - بنات - فردي - ثالثة ورابعة ابتدائي", pricePerUnit: 30 },
   { id: "connect4_girls_grade56", name: "كونكت فور - بنات - فردي - خامسة وسادسة ابتدائي", pricePerUnit: 30 },
 ];
+const mandatoryItems = [
+  {
+    id: "sports_insurance",
+    name: "التأمين الرياضي",
+    count: 1,
+    totalPrice: 100
+  },
+  // ممكن تزود إلزاميات تانية بعدين
+];
 
 export default function SportCompetitionsPage() {
   const [userChurch, setUserChurch] = useState(null);
@@ -80,9 +89,10 @@ export default function SportCompetitionsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const sections = [...new Set(competitionsData.map(c => c.name.split(" - ")[0]))];
-
+  
 
   useEffect(() => {
+    
     const unsubscribeAuth = onAuthStateChanged(auth, async (user) => {
       if (!user) {
         setError("يجب تسجيل الدخول أولاً");
@@ -112,32 +122,56 @@ export default function SportCompetitionsPage() {
     return () => unsubscribeAuth();
   }, []);
 
-  useEffect(() => {
-    if (!userChurch) return;
+useEffect(() => {
+  
+  if (!userChurch) return;
+  
+  const docRef = doc(db, "church_competitions", userChurch);
 
-    const docRef = doc(db, "church_competitions", userChurch);
-    const unsubscribeData = onSnapshot(
-      docRef,
-      (docSnap) => {
-        if (docSnap.exists()) {
-          const data = docSnap.data();
-          setCounts({
-            competitions: data.competitions || {},
-            totalPayment: data.totalPayment || 0,
-          });
-        } else {
-          setCounts({ competitions: {}, totalPayment: 0 });
-        }
-        setLoading(false);
-      },
-      () => {
-        setError("حدث خطأ أثناء تحميل بيانات المسابقات.");
-        setLoading(false);
+  const unsubscribeData = onSnapshot(
+    docRef,
+    (docSnap) => {
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        let competitions = data.competitions || {};
+
+if (!competitions["sports_insurance"]) {
+  competitions["sports_insurance"] = {
+    count: 1,
+    totalPrice: 100,
+  };
+  setDoc(docRef, { competitions }, { merge: true }).then(() => {
+    setCounts({
+      competitions,
+      totalPayment: Object.values(competitions).reduce(
+        (acc, c) => acc + (c.totalPrice || 0),
+        0
+      )
+    });
+  });
+}
+  
+
+        const totalPayment = Object.values(competitions).reduce(
+          (acc, c) => acc + (c.totalPrice || 0),
+          0
+        );
+
+        setCounts({ competitions, totalPayment });
+      } else {
+        setCounts({ competitions: {}, totalPayment: 0 });
       }
-    );
+      setLoading(false);
+    },
+    () => {
+      setError("حدث خطأ أثناء تحميل بيانات المسابقات.");
+      setLoading(false);
+    }
+  );
 
-    return () => unsubscribeData();
-  }, [userChurch]);
+  return () => unsubscribeData();
+}, [userChurch]);
+
 
   function handleInputChange(id, value) {
     if (!/^\d*$/.test(value)) return;
@@ -176,7 +210,7 @@ export default function SportCompetitionsPage() {
   if (loading) return <p className="sport-loading">...جاري التحميل</p>;
   if (error) return <p className="sport-error">{error}</p>;
   if (!userChurch) return <p className="sport-error">يتم جلب بيانات الكنيسة...</p>;
-
+  
   return (
     <div className="sport-container">
       <h1 className="sport-title">المسابقات الرياضية</h1>
@@ -192,11 +226,22 @@ export default function SportCompetitionsPage() {
         التكلفة الإجمالية لجميع المسابقات:{" "}
         <span>{counts.totalPayment.toLocaleString()} جـ</span>
       </div>
+      
+{counts.competitions["sports_insurance"] && (
+  <div className="sport-card">
+    <h3 className="sport-card-title">التأمين الرياضي</h3>
+    <p className="sport-card-price">سعر التأمين: 100 جـ</p>
+    <p className="sport-count-info">
+      عدد المشتركين: <strong>{counts.competitions["sports_insurance"].count}</strong> - 
+      التكلفة: <strong>{counts.competitions["sports_insurance"].totalPrice.toLocaleString()} جـ</strong>
+    </p>
+  </div>
+)}
 
 {sections.map((section) => (
   <div key={section}>
     <h2 id={section} className="sport-section-title">{section}</h2>
-    
+
     {competitionsData
       .filter(c => c.name.startsWith(section))
       .map(({ id, name, pricePerUnit, countLabel }) => {
@@ -248,8 +293,5 @@ export default function SportCompetitionsPage() {
         );
       })}
   </div>
-))}
-    </div>
-  );
+))}  </div>);
 }
-
