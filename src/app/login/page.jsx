@@ -14,6 +14,18 @@ export default function LoginPage() {
   const [message, setMessage] = useState("");
   const [messageType, setMessageType] = useState(""); 
   const router = useRouter();
+  const firebaseErrorMessages = {
+  "auth/user-not-found": "❌ هذا البريد الإلكتروني غير مسجل.",
+  "auth/wrong-password": "❌ كلمة المرور غير صحيحة.",
+  "auth/invalid-email": "❌ البريد الإلكتروني غير صالح.",
+  "auth/too-many-requests": "❌ تم حظر المحاولة مؤقتًا بسبب محاولات كثيرة. حاول لاحقًا.",
+  "auth/network-request-failed": "❌ حصلت مشكلة في الاتصال بالإنترنت.",
+  "auth/internal-error": "❌ حصل خطأ داخلي. حاول تاني.",
+  "auth/invalid-credential": "❌ البريد الإلكتروني أو كلمة المرور غير صحيحين.",
+  "auth/user-disabled": "❌ تم تعطيل هذا الحساب من قبل المسؤول.",
+  // Password reset
+  "auth/missing-email": "❌ من فضلك أدخل بريدك الإلكتروني.",
+};
 
   useEffect(() => {
     const checkUser = async () => {
@@ -66,16 +78,12 @@ export default function LoginPage() {
       }
 
     } catch (err) {
-      console.error(err);
-      if (err.code === "auth/user-not-found") {
-        setMessage("❌ الإيميل غير مسجل.");
-      } else if (err.code === "auth/wrong-password") {
-        setMessage("❌ كلمة المرور غير صحيحة.");
-      } else {
-        setMessage("❌ حصل خطأ أثناء تسجيل الدخول.");
-      }
-      setMessageType("error");
-    }
+  const msg = firebaseErrorMessages[err.code] || "❌ حصل خطأ أثناء تسجيل الدخول.";
+  setMessage(msg);
+  setMessageType("error");
+}
+
+    
 
     setLoading(false);
   };
@@ -91,14 +99,11 @@ export default function LoginPage() {
     setMessage("📧 تم إرسال رابط إعادة تعيين كلمة المرور إلى بريدك الإلكتروني.");
     setMessageType("success");
   } catch (err) {
-    console.error(err);
-    if (err.code === "auth/user-not-found") {
-      setMessage("❌ هذا البريد الإلكتروني غير مسجل.");
-    } else {
-      setMessage("❌ حصل خطأ أثناء محاولة إرسال الإيميل.");
-    }
-    setMessageType("error");
-  }
+  const msg = firebaseErrorMessages[err.code] || "❌ حصل خطأ أثناء محاولة إرسال الإيميل.";
+  setMessage(msg);
+  setMessageType("error");
+}
+
 };
 
   return (
