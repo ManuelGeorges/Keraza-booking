@@ -79,6 +79,27 @@ export default function LoginPage() {
 
     setLoading(false);
   };
+  const handleForgotPassword = async () => {
+  if (!email) {
+    setMessage("❌ من فضلك أدخل بريدك الإلكتروني أولاً.");
+    setMessageType("error");
+    return;
+  }
+
+  try {
+    await sendPasswordResetEmail(auth, email);
+    setMessage("📧 تم إرسال رابط إعادة تعيين كلمة المرور إلى بريدك الإلكتروني.");
+    setMessageType("success");
+  } catch (err) {
+    console.error(err);
+    if (err.code === "auth/user-not-found") {
+      setMessage("❌ هذا البريد الإلكتروني غير مسجل.");
+    } else {
+      setMessage("❌ حصل خطأ أثناء محاولة إرسال الإيميل.");
+    }
+    setMessageType("error");
+  }
+};
 
   return (
     <div className="reg-container">
@@ -114,9 +135,16 @@ export default function LoginPage() {
         )}
 
         <p className="reg-note">
-          حساب جديد؟{" "}
-          <a href="/register" className="reg-link">سجّل من هنا</a>
+          New account?{" "}
+          <a href="/register" className="reg-link">Click here</a>
         </p>
+        <p className="reg-note">
+        Forgot your password?{" "}
+  <span className="reg-link" onClick={() => handleForgotPassword()}>
+    Click here
+  </span>
+</p>
+
       </form>
     </div>
   );

@@ -237,3 +237,9 @@ body {
   z-index: 1;
   position: relative;
 }
+
+.reg-link {
+  color: #0070f3;
+  cursor: pointer;
+  text-decoration: underline;
+}
