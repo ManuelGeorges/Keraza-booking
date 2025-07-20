@@ -1,3 +1,5 @@
+// app/admin/churches/page.jsx
+
 "use client";
 
 import { useEffect, useState } from "react";
@@ -6,9 +8,7 @@ import { auth, db } from "@/lib/firebase";
 import {
   collection,
   getDocs,
-  query,
-  where,
-  getDoc,
+  getDoc, // تأكد أن هذه مستوردة
   doc,
   updateDoc,
   setDoc,
@@ -20,7 +20,7 @@ import "./page.css";
 const churchList = [
   "كنيسة الشهيد العظيم مارمينا بفلمنج",
   "كنيسة السيدة العذراء مريم و القديس يوحنا الحبيب بجناكليس",
-  "كنيسة السيدة العذراء مريم و الانبا باخوميوس  شارع سوريا",
+  "كنيسة السيدة العذراء مريم و الانبا باخوميوس شارع سوريا",
   "كنيسة رئيس الملائكة الجليل ميخائيل بمصطفى كامل",
   "كنيسة السيدة العذراء مريم و الشهيد العظيم مارمرقس الرسول بجرين بلازا",
   "كنيسة العذراء ومارجرجس بغبريال",
@@ -51,110 +51,184 @@ export default function ChurchesPage() {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      if (!user) return router.push("/register");
+      if (!user) {
+        return router.push("/register");
+      }
       const userDoc = await getDoc(doc(db, "leaders", user.uid));
-      if (!userDoc.exists() || userDoc.data().role !== "admin")
+      if (!userDoc.exists() || userDoc.data().role !== "admin") {
         return router.push("/leader/profile");
+      }
 
       fetchData();
     });
     return () => unsubscribe();
   }, []);
-const handlePaidToggle = async (id, current) => {
-  if (!id) return;
 
-  await updateDoc(doc(db, "leaders", id), {
-    paid: !current,
-  });
+  // دالة مساعدة لحساب السعر بعد الخصم
+  const calculatePriceAfterDiscount = (originalPrice, discountPercentage) => {
+    // التأكد من أن الخصم رقم وضمن النطاق من 0-100
+    const discount = parseFloat(discountPercentage);
+    if (isNaN(discount) || discount < 0) return originalPrice;
+    if (discount > 100) return 0; // إذا كان الخصم 100% أو أكثر، يصبح السعر 0
 
-  const updatedChurch = data.find((item) => item.id === id);
-  if (updatedChurch) {
-    await updateDoc(doc(db, "churches", updatedChurch.church), {
-      paid: !current,
-    });
-  }
+    return originalPrice * (1 - (discount / 100));
+  };
 
-  setData((prev) =>
-    prev.map((item) =>
-      item.id === id ? { ...item, paid: !current } : item
-    )
-  );
-};
+  const handlePaidToggle = async (id, churchName, currentPaidStatus) => {
+    if (!id || !churchName) return;
 
-const fetchData = async () => {
-  const leadersSnapshot = await getDocs(collection(db, "leaders"));
-  const sportSnapshot = await getDocs(collection(db, "church_competitions"));
-  const otherSnapshot = await getDocs(collection(db, "other-competitions"));
+    try {
+      // تحديث حالة الدفع للخادم
+      await updateDoc(doc(db, "leaders", id), {
+        paid: !currentPaidStatus,
+      });
 
-  const allCompetitions = [...sportSnapshot.docs, ...otherSnapshot.docs];
+      // تحديث حالة الدفع للكنيسة في كولكشن 'churches'
+      await updateDoc(doc(db, "churches", churchName), {
+        paid: !currentPaidStatus,
+      });
 
-  const result = churchList.map((church) => {
-    const leader = leadersSnapshot.docs.find(
-      (doc) => doc.data().church === church
-    );
+      // تحديث الحالة المحلية لعكس التغيير فورا
+      setData((prev) =>
+        prev.map((item) =>
+          item.id === id ? { ...item, paid: !currentPaidStatus } : item
+        )
+      );
+    } catch (error) {
+      console.error("Error updating paid status:", error);
+      alert("فشل تحديث حالة الدفع. الرجاء المحاولة مرة أخرى.");
+    }
+  };
 
-    const churchComps = allCompetitions.filter(
-      (comp) => comp.id === church
-    );
+  const handleDiscountChange = async (churchName, newDiscountValue) => {
+    let newDiscount = parseFloat(newDiscountValue);
+    if (isNaN(newDiscount) || newDiscount < 0) {
+      newDiscount = 0;
+    }
+    if (newDiscount > 100) {
+      newDiscount = 100;
+    }
 
-    const totalSubs = churchComps.reduce((sum, comp) => {
-      const competitions = comp.data().competitions || {};
-      const counts = Object.values(competitions).map((c) => c.count || 0);
-      return sum + counts.reduce((a, b) => a + b, 0);
-    }, 0);
+    try {
+      // تحديث نسبة الخصم في كولكشن 'churches'
+      await updateDoc(doc(db, "churches", churchName), {
+        discountPercentage: newDiscount,
+      });
 
-    const totalPayment = churchComps.reduce((sum, comp) => {
-      const competitions = comp.data().competitions || {};
-      const prices = Object.values(competitions).map((c) => c.totalPrice || 0);
-      return sum + prices.reduce((a, b) => a + b, 0);
-    }, 0);
+      // تحديث الحالة المحلية لعكس التغيير فورا
+      setData((prevData) =>
+        prevData.map((item) => {
+          if (item.church === churchName) {
+            const updatedTotalAfterDiscount = calculatePriceAfterDiscount(
+              item.totalPayment, // هذا هو الإجمالي قبل الخصم
+              newDiscount
+            );
+            return {
+              ...item,
+              discountPercentage: newDiscount,
+              totalPaymentAfterDiscount: updatedTotalAfterDiscount,
+            };
+          }
+          return item;
+        })
+      );
+    } catch (error) {
+      console.error("Error updating discount percentage:", error);
+      alert("فشل تحديث نسبة الخصم في قاعدة البيانات. الرجاء المحاولة مرة أخرى.");
+    }
+  };
 
-    const paid = leader?.data()?.paid || false;
+  const fetchData = async () => {
+    const leadersSnapshot = await getDocs(collection(db, "leaders"));
+    const sportSnapshot = await getDocs(collection(db, "church_competitions"));
+    const otherSnapshot = await getDocs(collection(db, "other-competitions"));
 
-    const leaderName = leader?.data()
-      ? `${leader.data().firstName} ${leader.data().lastName}`
-      : "—";
+    const allCompetitionsDocs = [...sportSnapshot.docs, ...otherSnapshot.docs];
 
-    return {
-      church,
-      leader: leaderName,
-      subscribers: totalSubs,
-      totalPayment,
-      paid,
-      id: leader?.id,
-    };
-  });
+    const result = [];
 
-  setData(result);
-  setLoading(false);
+    for (const churchName of churchList) {
+      const leader = leadersSnapshot.docs.find(
+        (doc) => doc.data().church === churchName
+      );
 
-  // 🏗️ كتابة البيانات في كولكشن churches
-  for (const item of result) {
-const docData = {
-  church: item.church,
-  leader: item.leader,
-  subscribers: item.subscribers,
-  totalPayment: item.totalPayment,
-  paid: item.paid,
-};
+      const churchCompsDocs = allCompetitionsDocs.filter(
+        (compDoc) => compDoc.id === churchName
+      );
 
-if (item.id) {
-  docData.leaderId = item.id;
-}
+      let totalSubs = 0;
+      let totalPaymentBeforeDiscount = 0; // هذا يمثل عمود 'السعر'
+      let discountPercentage = 0; // قيمة افتراضية
 
-await setDoc(doc(db, "churches", item.church), docData);
+      // جلب مستند الكنيسة من كولكشن 'churches' للحصول على نسبة الخصم الخاصة بها
+      const churchDocRef = doc(db, "churches", churchName);
+      const churchDocSnap = await getDoc(churchDocRef);
 
-  }
-};
+      if (churchDocSnap.exists()) {
+        discountPercentage = churchDocSnap.data().discountPercentage || 0;
+      }
 
+      churchCompsDocs.forEach((compDoc) => {
+        const competitions = compDoc.data().competitions || {};
+        Object.values(competitions).forEach((compDetails) => {
+          totalSubs += compDetails.count || 0;
+          totalPaymentBeforeDiscount += compDetails.totalPrice || 0;
+        });
+      });
 
+      const totalPaymentAfterDiscount = calculatePriceAfterDiscount(
+        totalPaymentBeforeDiscount,
+        discountPercentage
+      );
+
+      const paid = leader?.data()?.paid || false;
+
+      const leaderName = leader?.data()
+        ? `${leader.data().firstName} ${leader.data().lastName}`
+        : "—";
+
+      result.push({
+        church: churchName,
+        leader: leaderName,
+        subscribers: totalSubs,
+        totalPayment: totalPaymentBeforeDiscount, // هذا هو 'السعر'
+        discountPercentage: discountPercentage,
+        totalPaymentAfterDiscount: totalPaymentAfterDiscount, // هذا هو 'السعر الإجمالي بعد الخصم'
+        paid,
+        id: leader?.id, // معرّف مستند الخادم
+      });
+
+      // 🏗️ كتابة أو تحديث البيانات في كولكشن churches
+      const docDataToSet = {
+        church: churchName,
+        leader: leaderName,
+        subscribers: totalSubs,
+        totalPayment: totalPaymentBeforeDiscount, // تخزين الإجمالي الأصلي
+        discountPercentage: discountPercentage,
+        totalPaymentAfterDiscount: totalPaymentAfterDiscount,
+        paid: paid,
+      };
+
+      if (leader?.id) {
+        docDataToSet.leaderId = leader.id;
+      }
+
+      // استخدام { merge: true } لتجنب الكتابة فوق الحقول الموجودة
+      await setDoc(doc(db, "churches", churchName), docDataToSet, { merge: true });
+    }
+
+    setData(result);
+    setLoading(false);
+  };
 
   const downloadExcel = () => {
     const exportData = data.map((row) => ({
       "الكنيسة": row.church,
       "الخادم": row.leader,
       "عدد المشتركين": row.subscribers,
-      "المال المطلوب": row.totalPayment,
+      "السعر": row.totalPayment, // السعر الأصلي
+      "نسبة الخصم (%)": row.discountPercentage,
+      "السعر الإجمالي بعد الخصم": row.totalPaymentAfterDiscount,
       "تم الدفع؟": row.paid ? "✔" : "✘",
     }));
 
@@ -164,7 +238,7 @@ await setDoc(doc(db, "churches", item.church), docData);
     XLSX.writeFile(workbook, "churches_report.xlsx");
   };
 
-  if (loading) return <p className="ad-church-loading">Loading...</p>;
+  if (loading) return <p className="ad-church-loading">جاري التحميل...</p>;
 
   return (
     <div className="ad-church-container">
@@ -179,26 +253,42 @@ await setDoc(doc(db, "churches", item.church), docData);
               <th>الكنيسة</th>
               <th>الخادم</th>
               <th>عدد المشتركين</th>
-              <th>المال المطلوب</th>
+              <th>السعر</th>
+              <th>نسبة الخصم</th>
+              <th>السعر الإجمالي بعد الخصم</th>
               <th>تم الدفع؟</th>
             </tr>
           </thead>
           <tbody>
             {data.map((church) => (
-              <tr key={church.church}>
-                <td>{church.church}</td>
+              <tr key={church.church}> {/* هنا تبدأ المشكلة عادةً */}
+                <td>{church.church}</td> {/* تأكد من عدم وجود مسافة بين <td> و {church.church} */}
                 <td>{church.leader}</td>
                 <td>{church.subscribers}</td>
-                <td>{church.totalPayment} ج</td>
+                <td>{church.totalPayment.toLocaleString()} جـ</td>
                 <td>
-            <input
-            type="checkbox"
-            checked={church.paid}
-            onChange={() => handlePaidToggle(church.id, church.paid)}
-            />
-
+                  <input
+                    type="number"
+                    value={church.discountPercentage}
+                    onChange={(e) =>
+                      handleDiscountChange(church.church, e.target.value)
+                    }
+                    min="0"
+                    max="100"
+                    step="0.01"
+                    className="discount-input"
+                  />
+                  %
                 </td>
-              </tr>
+                <td>{church.totalPaymentAfterDiscount.toLocaleString()} جـ</td>
+                <td>
+                  <input
+                    type="checkbox"
+                    checked={church.paid}
+                    onChange={() => handlePaidToggle(church.id, church.church, church.paid)}
+                  />
+                </td>
+              </tr> // وهنا تنتهي المشكلة، لا مسافات بيضاء قبل أو بعد </tr>
             ))}
           </tbody>
         </table>
