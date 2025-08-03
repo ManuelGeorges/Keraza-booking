@@ -288,7 +288,7 @@ export default function ChurchesPage() {
                     onChange={() => handlePaidToggle(church.id, church.church, church.paid)}
                   />
                 </td>
-              </tr> // وهنا تنتهي المشكلة، لا مسافات بيضاء قبل أو بعد </tr>
+              </tr> 
             ))}
           </tbody>
         </table>

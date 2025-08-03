@@ -37,8 +37,7 @@ export default function LeaderNavbar() {
           </>
         ) : (
           <>
-            <Link href="/leader/sport-competitions">sport-compet.</Link>
-            <Link href="/leader/other-competitions">other-compet.</Link>
+          <Link href="/leader/profile">Profile</Link>
           </>
         )}
       </nav>
@@ -51,7 +50,7 @@ export default function LeaderNavbar() {
           </>
         ) : (
           <>
-            <Link href="/leader/profile">Profile</Link>
+            
             <Link href="/leader/church-info">Church info</Link>
           </>
         )}
