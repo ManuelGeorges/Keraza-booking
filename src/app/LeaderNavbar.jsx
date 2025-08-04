@@ -33,6 +33,7 @@ export default function LeaderNavbar() {
         {role === "admin" ? (
           <>
           <Link href="/admin/churches">البيانات</Link>
+          <Link href="/admin/competitions">المسابقات</Link>
           <Link href="/admin/details">الكنائس</Link>
           </>
         ) : (
