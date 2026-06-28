@@ -1,41 +1,41 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
 :root {
-  /* Apple-inspired Color Palette */
+  /* Apple-inspired Color Palette - High Contrast */
   --primary: #0071e3;
   --primary-hover: #0077ed;
-  --secondary: #86868b;
+  --secondary: #6e6e73; /* Darker than before */
   --accent: #bf4800;
 
-  /* Liquid Glass System */
-  --glass-bg: rgba(255, 255, 255, 0.72);
-  --glass-border: rgba(255, 255, 255, 0.4);
-  --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.08);
-  --glass-blur: 20px;
+  /* Liquid Glass System - Increased Opacity for Readability */
+  --glass-bg: rgba(255, 255, 255, 0.85); /* Increased from 0.72 */
+  --glass-border: rgba(255, 255, 255, 0.5);
+  --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.12);
+  --glass-blur: 25px;
 
-  /* Typography - High Contrast */
-  --text-main: #1d1d1f;
-  --text-muted: #86868b;
-  --text-on-glass: #1d1d1f;
+  /* Typography - Max Contrast */
+  --text-main: #000000; /* Pure black for maximum clarity */
+  --text-muted: #515154; /* Darker grey for better visibility */
+  --text-on-glass: #000000;
 
-  /* Background - Soft gradients */
+  /* Background - Soft but distinct */
   --bg-color: #f5f5f7;
-  --bg-gradient: radial-gradient(circle at 50% -20%, #e0e0e0 0%, #f5f5f7 100%);
+  --bg-gradient: radial-gradient(circle at 50% -20%, #d2d2d7 0%, #f5f5f7 100%);
 
-  --radius-lg: 18px;
-  --radius-md: 12px;
+  --radius-lg: 20px;
+  --radius-md: 14px;
   --transition: all 0.4s cubic-bezier(0.25, 0.1, 0.25, 1);
 }
 
 [data-theme='dark'] {
-  --glass-bg: rgba(28, 28, 30, 0.7);
-  --glass-border: rgba(255, 255, 255, 0.1);
-  --text-main: #f5f5f7;
+  --glass-bg: rgba(22, 22, 23, 0.85);
+  --glass-border: rgba(255, 255, 255, 0.15);
+  --text-main: #ffffff;
   --text-muted: #a1a1a6;
   --text-on-glass: #ffffff;
   --bg-color: #000000;
   --bg-gradient: radial-gradient(circle at 50% -20%, #1c1c1e 0%, #000000 100%);
-  --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+  --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
 }
 
 * {
@@ -54,43 +54,46 @@ body {
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  line-height: 1.47059;
-  letter-spacing: -0.022em;
+  line-height: 1.5;
+  letter-spacing: -0.015em;
 }
 
-/* Liquid Glass Card */
+/* Liquid Glass Card - Enhanced for text clarity */
 .glass-card {
   background: var(--glass-bg);
-  backdrop-filter: blur(var(--glass-blur)) saturate(180%);
-  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(180%);
+  backdrop-filter: blur(var(--glass-blur)) saturate(190%);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(190%);
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-lg);
   box-shadow: var(--glass-shadow);
   transition: var(--transition);
   overflow: hidden;
+  position: relative;
 }
 
 .glass-card:hover {
-  border-color: rgba(255, 255, 255, 0.6);
-  box-shadow: 0 12px 48px 0 rgba(0, 0, 0, 0.12);
+  border-color: rgba(0, 113, 227, 0.3);
+  box-shadow: 0 12px 48px 0 rgba(0, 0, 0, 0.15);
 }
 
-/* Apple-style Inputs */
+/* Apple-style Inputs - Solid background on focus */
 input, select {
   width: 100%;
   padding: 14px 16px;
   border-radius: var(--radius-md);
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  background: rgba(255, 255, 255, 0.8);
-  font-size: 16px; /* Prevents auto-zoom on iOS */
-  color: var(--text-main);
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  background: rgba(255, 255, 255, 0.9);
+  font-size: 16px;
+  color: #000;
+  font-weight: 500;
   outline: none;
   transition: var(--transition);
 }
 
 [data-theme='dark'] input, [data-theme='dark'] select {
-  background: rgba(44, 44, 46, 0.8);
-  border-color: rgba(255, 255, 255, 0.1);
+  background: rgba(44, 44, 46, 0.9);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: #fff;
 }
 
 input:focus {
@@ -102,28 +105,45 @@ input:focus {
 /* Apple-style Primary Button */
 .btn-primary {
   background: var(--primary);
-  color: white;
-  padding: 12px 24px;
-  border-radius: 20px;
+  color: white !important;
+  padding: 14px 28px;
+  border-radius: 24px;
   border: none;
-  font-weight: 500;
-  font-size: 15px;
+  font-weight: 600;
+  font-size: 16px;
   transition: var(--transition);
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 10px;
+  box-shadow: 0 4px 12px rgba(0, 113, 227, 0.3);
 }
 
 .btn-primary:hover {
   background: var(--primary-hover);
-  transform: scale(1.01);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(0, 113, 227, 0.4);
 }
 
-.btn-primary:active {
-  transform: scale(0.98);
+/* Typography Helpers - Bold & Clear */
+h1, h2, h3, h4 {
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  color: var(--text-main);
+  line-height: 1.2;
 }
+
+.text-gradient {
+  background: linear-gradient(135deg, #0071e3 0%, #00d4ff 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 800;
+}
+
+.color-primary { color: var(--primary) !important; font-weight: 700; }
+.color-success { color: #28a745 !important; font-weight: 700; }
+.font-bold { font-weight: 700 !important; }
 
 /* Speed Optimization: Apple Spinner */
 .loading-container {
@@ -135,42 +155,26 @@ input:focus {
 }
 
 .apple-spinner {
-  width: 32px;
-  height: 32px;
-  border: 3px solid rgba(0,0,0,0.05);
+  width: 40px;
+  height: 40px;
+  border: 4px solid rgba(0, 113, 227, 0.1);
   border-top-color: var(--primary);
   border-radius: 50%;
-  animation: spin 0.8s linear infinite;
+  animation: spin 0.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
 }
 
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
 
-/* Typography Helpers */
-h1, h2, h3 {
-  font-weight: 700;
-  letter-spacing: -0.015em;
-  color: var(--text-main);
-}
-
-.text-gradient {
-  background: linear-gradient(135deg, #0071e3, #8b5cf6);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-/* RTL Support */
-[dir="rtl"] {
-  text-align: right;
-}
-
 /* Liquid Transitions */
 .page-transition {
-  animation: liquidEnter 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+  animation: liquidEnter 0.5s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @keyframes liquidEnter {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; transform: translateY(15px) scale(0.99); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
 }
+
+[dir="rtl"] { text-align: right; }
