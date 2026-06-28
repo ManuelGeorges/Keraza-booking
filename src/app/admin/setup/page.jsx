@@ -37,35 +37,39 @@ export default function SetupPage() {
 
   const initializeDatabase = async () => {
     setLoading(true);
-    setStatus("⏳ جاري تهيئة البيانات...");
+    setStatus("⏳ جاري تهيئة البيانات بسرعة...");
     try {
-      for (const churchName of churches) {
-        // 1. تهيئة بيانات الكنيسة الأساسية (الخصومات)
+      // Process churches in parallel chunks to avoid hitting rate limits while staying fast
+      const processChurch = async (churchName) => {
         const churchRef = doc(db, "churches", churchName);
-        const churchSnap = await getDoc(churchRef);
-
-        if (!churchSnap.exists()) {
-          await setDoc(churchRef, {
-            name: churchName,
-            discountPercentage: 0,
-            createdAt: new Date(),
-          });
-        }
-
-        // 2. تهيئة مستندات المسابقات لكل كنيسة (إذا أردت إنشاءها فارغة)
         const compRef = doc(db, "church_competitions", churchName);
-        const compSnap = await getDoc(compRef);
+        const otherCompRef = doc(db, "other-competitions", churchName);
+
+        // Run checks in parallel for each church
+        const [churchSnap, compSnap, otherSnap] = await Promise.all([
+          getDoc(churchRef),
+          getDoc(compRef),
+          getDoc(otherCompRef)
+        ]);
+
+        const tasks = [];
+        if (!churchSnap.exists()) {
+          tasks.push(setDoc(churchRef, { name: churchName, discountPercentage: 0, createdAt: new Date() }));
+        }
         if (!compSnap.exists()) {
-          await setDoc(compRef, { competitions: {} });
+          tasks.push(setDoc(compRef, { competitions: {} }));
+        }
+        if (!otherSnap.exists()) {
+          tasks.push(setDoc(otherCompRef, { competitions: {} }));
         }
 
-        const otherCompRef = doc(db, "other-competitions", churchName);
-        const otherCompSnap = await getDoc(otherCompRef);
-        if (!otherCompSnap.exists()) {
-          await setDoc(otherCompRef, { competitions: {} });
-        }
-      }
-      setStatus("✅ تم تهيئة قاعدة البيانات بنجاح! يمكنك الآن البدء في استخدام النظام.");
+        if (tasks.length > 0) await Promise.all(tasks);
+      };
+
+      // Execute all church initializations in parallel
+      await Promise.all(churches.map(name => processChurch(name)));
+
+      setStatus("✅ تم تهيئة قاعدة البيانات بنجاح وبسرعة قياسية!");
     } catch (error) {
       console.error(error);
       setStatus("❌ حدث خطأ أثناء التهيئة: " + error.message);
@@ -74,35 +78,27 @@ export default function SetupPage() {
   };
 
   return (
-    <div style={{ padding: "50px", textAlign: "center", direction: "rtl", fontFamily: "sans-serif" }}>
-      <h1>إعداد نظام الكرازة 2024</h1>
-      <p>هذه الصفحة تقوم بإنشاء الكنائس والمجموعات المطلوبة على Firebase لأول مرة.</p>
+    <div className="setup-container glass-card page-transition" style={{ maxWidth: '600px', margin: '10vh auto', padding: '40px', textAlign: 'center' }}>
+      <h1 className="text-gradient">إعداد النظام</h1>
+      <p style={{ margin: '20px 0', color: 'var(--text-muted)' }}>تقوم هذه الصفحة بتهيئة الكنائس والمستندات المطلوبة على Firebase.</p>
 
       <button
         onClick={initializeDatabase}
         disabled={loading}
-        style={{
-          padding: "15px 30px",
-          fontSize: "18px",
-          backgroundColor: "#4f6ef7",
-          color: "white",
-          border: "none",
-          borderRadius: "8px",
-          cursor: loading ? "not-allowed" : "pointer",
-          marginTop: "20px"
-        }}
+        className="btn-primary"
+        style={{ width: '100%', padding: '16px' }}
       >
-        {loading ? "جاري العمل..." : "تهيئة قاعدة البيانات الآن"}
+        {loading ? "جاري التهيئة..." : "ابدأ التهيئة الآن"}
       </button>
 
       {status && (
         <div style={{
           marginTop: "30px",
-          padding: "20px",
-          border: "1px solid #ccc",
-          borderRadius: "8px",
-          display: "inline-block",
-          backgroundColor: "#f9f9f9"
+          padding: "16px",
+          borderRadius: "12px",
+          backgroundColor: "rgba(0,0,0,0.05)",
+          color: "var(--text-main)",
+          fontSize: "14px"
         }}>
           {status}
         </div>

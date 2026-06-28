@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { onAuthStateChanged } from "firebase/auth";
-import { auth, db } from "@/lib/firebase";
+import { db } from "@/lib/firebase";
+import { useAuth } from "@/lib/AuthContext";
 import {
   collection,
   getDocs,
@@ -11,45 +11,40 @@ import {
   where,
   updateDoc,
   doc,
-  getDoc,
 } from "firebase/firestore";
 import "./page.css";
 
 export default function PendingLeadersPage() {
+  const { userData, loading: authLoading } = useAuth();
   const [pendingLeaders, setPendingLeaders] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [dataLoading, setDataLoading] = useState(true);
   const router = useRouter();
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      if (!user) {
-        router.push("/register");
-        return;
-      }
+    if (authLoading) return;
 
-      const userDoc = await getDoc(doc(db, "leaders", user.uid));
-      const userData = userDoc.data();
+    if (!userData || userData.role !== "admin") {
+      router.push("/leader/profile");
+      return;
+    }
 
-      if (!userData || userData.role !== "admin") {
-        router.push("/leader/profile");
-        return;
-      }
-
-      fetchPending();
-    });
-
-    return () => unsubscribe();
-  }, []);
+    fetchPending();
+  }, [userData, authLoading, router]);
 
   const fetchPending = async () => {
-    const q = query(collection(db, "leaders"), where("approved", "==", false));
-    const snapshot = await getDocs(q);
-    const leaders = snapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
-    setPendingLeaders(leaders);
-    setLoading(false);
+    try {
+      const q = query(collection(db, "leaders"), where("approved", "==", false));
+      const snapshot = await getDocs(q);
+      const leaders = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setPendingLeaders(leaders);
+    } catch (error) {
+      console.error("Error fetching pending:", error);
+    } finally {
+      setDataLoading(false);
+    }
   };
 
   const handleApprove = async (userId) => {
@@ -65,27 +60,34 @@ export default function PendingLeadersPage() {
     );
   };
 
-  if (loading) return <p className="ad-pend-loading">جارٍ التحميل...</p>;
+  if (authLoading || dataLoading) {
+    return (
+      <div className="loading-container">
+        <div className="apple-spinner"></div>
+        <p className="ad-pend-loading">جارٍ التحميل بسرعة...</p>
+      </div>
+    );
+  }
 
   return (
-    <div className="ad-pend-container">
+    <div className="ad-pend-container glass-card page-transition">
       <h1 className="ad-pend-title">الخدام المنتظرين الموافقة</h1>
       {pendingLeaders.length === 0 ? (
         <p className="ad-pend-empty">لا يوجد خدام حالياً 👌</p>
       ) : (
         <ul className="ad-pend-list">
           {pendingLeaders.map((user) => (
-            <li key={user.id} className="ad-pend-card">
+            <li key={user.id} className="ad-pend-card glass-card">
               <div className="ad-pend-user-info">
                 <p className="ad-pend-name">{user.firstName + " " + user.lastName}</p>
-                <p className="ad-pend-name">{user.church}</p>
+                <p className="ad-pend-church">{user.church}</p>
                 <p className="ad-pend-email">{user.email}</p>
               </div>
               <button
-                className="ad-pend-approve-btn"
+                className="btn-primary"
                 onClick={() => handleApprove(user.id)}
               >
-               Approve
+               تفعيل الحساب
               </button>
             </li>
           ))}

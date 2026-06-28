@@ -1,19 +1,19 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { onAuthStateChanged } from "firebase/auth";
-import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { useState, useEffect } from "react";
+import { doc, updateDoc } from "firebase/firestore";
 import { auth, db } from "@/lib/firebase";
+import { useAuth } from "@/lib/AuthContext";
 import SelectChurch from "@/components/SelectChurch";
 import "./page.css";
 
 export default function LeaderProfile() {
-  const [loading, setLoading] = useState(true);
-  const [userData, setUserData] = useState(null);
+  const { userData, loading: authLoading } = useAuth();
   const [editMode, setEditMode] = useState(false);
-  const [formData, setFormData] = useState({});
-  const router = useRouter();
+  const [formData, setFormData] = useState({
+    phone: "",
+    church: "",
+  });
 
   const churches = [
     "كنيسة الشهيد العظيم مارمينا بفلمنج",
@@ -43,37 +43,13 @@ export default function LeaderProfile() {
   ];
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      if (!user) {
-        router.push("/register");
-        return;
-      }
-
-      const docRef = doc(db, "leaders", user.uid);
-      const docSnap = await getDoc(docRef);
-
-      if (!docSnap.exists()) {
-        router.push("/register");
-        return;
-      }
-
-      const data = docSnap.data();
-
-      if (data.approved === false) {
-        router.push("/waiting");
-        return;
-      }
-
-      setUserData(data);
+    if (userData) {
       setFormData({
-        phone: data.phone || "",
-        church: data.church || "",
+        phone: userData.phone || "",
+        church: userData.church || "",
       });
-      setLoading(false);
-    });
-
-    return () => unsubscribe();
-  }, [router]);
+    }
+  }, [userData]);
 
   const handleEditChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -83,60 +59,84 @@ export default function LeaderProfile() {
     if (!auth.currentUser) return;
     const docRef = doc(db, "leaders", auth.currentUser.uid);
     await updateDoc(docRef, formData);
-    setUserData((prev) => ({ ...prev, ...formData }));
     setEditMode(false);
   };
 
-  if (loading) return <p className="loading">جاري التحميل...</p>;
+  if (authLoading || !userData) {
+    return (
+      <div className="loading-container">
+        <div className="apple-spinner"></div>
+      </div>
+    );
+  }
 
   return (
-    <div className="profile-container">
-      <h1 className="profile-title">الملف الشخصي للخادم</h1>
-      <div className="profile-card">
-        <p><span className="profile-label">الاسم:</span> <span className="profile-value">{userData.firstName} {userData.lastName}</span></p>
-        <p><span className="profile-label">الإيميل:</span> <span className="profile-value">{userData.email}</span></p>
+    <div className="profile-container page-transition">
+      <h1 className="profile-title">الملف الشخصي</h1>
+      <div className="profile-card glass-card">
+        <div className="profile-header">
+          <div className="profile-avatar">
+            {userData.firstName?.[0]}{userData.lastName?.[0]}
+          </div>
+          <div className="profile-info">
+            <h2>{userData.firstName} {userData.lastName}</h2>
+            <p className="profile-email">{userData.email}</p>
+          </div>
+        </div>
 
-        {editMode ? (
-          <>
-            <div className="profile-field">
-              <span className="profile-label">رقم التليفون:</span>
-              <input
-                type="tel"
-                name="phone"
-                value={formData.phone}
-                onChange={handleEditChange}
-                className="edit-input"
-              />
+        <div className="profile-details">
+          {editMode ? (
+            <div className="edit-form">
+              <div className="profile-field">
+                <label>رقم التليفون</label>
+                <input
+                  type="tel"
+                  name="phone"
+                  value={formData.phone}
+                  onChange={handleEditChange}
+                />
+              </div>
+
+              <div className="profile-field">
+                <label>الكنيسة</label>
+                <SelectChurch
+                  options={churches.map((ch) => ({ value: ch, label: ch }))}
+                  onChange={(value) => setFormData({ ...formData, church: value })}
+                  defaultValue={{ value: formData.church, label: formData.church }}
+                />
+              </div>
             </div>
+          ) : (
+            <>
+              <div className="detail-row">
+                <span className="label">رقم التليفون</span>
+                <span className="value">{userData.phone}</span>
+              </div>
+              <div className="detail-row">
+                <span className="label">الكنيسة</span>
+                <span className="value">{userData.church}</span>
+              </div>
+            </>
+          )}
 
-            <div className="profile-field">
-              <span className="profile-label">الكنيسة:</span>
-              <SelectChurch
-                options={churches.map((ch) => ({ value: ch, label: ch }))}
-                onChange={(value) => setFormData({ ...formData, church: value })}
-                defaultValue={{ value: formData.church, label: formData.church }}
-              />
-            </div>
+          <div className="detail-row">
+            <span className="label">تاريخ التسجيل</span>
+            <span className="value">
+              {userData.createdAt?.toDate?.()
+                ? userData.createdAt.toDate().toLocaleDateString("ar-EG")
+                : "غير متوفر"}
+            </span>
+          </div>
+        </div>
 
-
-          </>
-        ) : (
-          <>
-            <p><span className="profile-label">التليفون:</span> <span className="profile-value">{userData.phone}</span></p>
-            <p><span className="profile-label">الكنيسة:</span> <span className="profile-value">{userData.church}</span></p>
-          </>
-        )}
-
-        <p><span className="profile-label">تاريخ التسجيل:</span> <span className="profile-value">{userData.createdAt?.toDate().toLocaleDateString("ar-EG")}</span></p>
-
-        <div style={{ marginTop: "20px" }}>
+        <div className="profile-actions">
           {editMode ? (
             <>
-              <button className="profile-button save" onClick={handleSave}>💾 حفظ التعديلات</button>
-              <button className="profile-button cancel" onClick={() => setEditMode(false)}>❌ إلغاء</button>
+              <button className="btn-primary" onClick={handleSave}>حفظ التعديلات</button>
+              <button className="btn-secondary" onClick={() => setEditMode(false)}>إلغاء</button>
             </>
           ) : (
-            <button className="profile-button edit" onClick={() => setEditMode(true)}>✏️ تعديل البيانات</button>
+            <button className="btn-primary" onClick={() => setEditMode(true)}>تعديل البيانات</button>
           )}
         </div>
       </div>

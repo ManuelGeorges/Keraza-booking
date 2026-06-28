@@ -1,17 +1,24 @@
+import { AuthProvider } from "@/lib/AuthContext";
 import LeaderNavbar from "./LeaderNavbar";
 import "./layout.css";
+import "./globals.css";
+
 export const metadata = {
-  title: "Panel",
+  title: "Keraza Booking - Admin Panel",
 };
 
 export default function LeaderLayout({ children }) {
   return (
-    <html>
+    <html lang="ar" dir="rtl">
       <body>
-        <div className="leader-layout">
-          <LeaderNavbar />
-          <div className="leader-content">{children}</div>
-        </div>
+        <AuthProvider>
+          <div className="leader-layout">
+            <LeaderNavbar />
+            <main className="leader-content page-transition">
+              {children}
+            </main>
+          </div>
+        </AuthProvider>
       </body>
     </html>
   );

@@ -1,20 +1,18 @@
-// app/admin/churches/page.jsx
-
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { auth, db } from "@/lib/firebase";
+import { db } from "@/lib/firebase";
+import { useAuth } from "@/lib/AuthContext";
 import {
   collection,
   getDocs,
-  getDoc, // تأكد أن هذه مستوردة
   doc,
   updateDoc,
   setDoc,
 } from "firebase/firestore";
-import { onAuthStateChanged } from "firebase/auth";
 import * as XLSX from "xlsx";
+import { Download, CheckCircle, XCircle } from "lucide-react";
 import "./page.css";
 
 const churchList = [
@@ -45,253 +43,180 @@ const churchList = [
 ];
 
 export default function ChurchesPage() {
+  const { userData, loading: authLoading } = useAuth();
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      if (!user) {
-        return router.push("/register");
-      }
-      const userDoc = await getDoc(doc(db, "leaders", user.uid));
-      if (!userDoc.exists() || userDoc.data().role !== "admin") {
-        return router.push("/leader/profile");
-      }
+    if (authLoading) return;
+    if (!userData || userData.role !== "admin") {
+      router.push("/leader/profile");
+      return;
+    }
+    fetchData();
+  }, [userData, authLoading, router]);
 
-      fetchData();
-    });
-    return () => unsubscribe();
-  }, []);
+  const fetchData = async () => {
+    try {
+      // Parallel fetch for everything
+      const [leadersSnap, sportSnap, otherSnap, churchesSnap] = await Promise.all([
+        getDocs(collection(db, "leaders")),
+        getDocs(collection(db, "church_competitions")),
+        getDocs(collection(db, "other-competitions")),
+        getDocs(collection(db, "churches"))
+      ]);
 
-  // دالة مساعدة لحساب السعر بعد الخصم
-  const calculatePriceAfterDiscount = (originalPrice, discountPercentage) => {
-    // التأكد من أن الخصم رقم وضمن النطاق من 0-100
-    const discount = parseFloat(discountPercentage);
-    if (isNaN(discount) || discount < 0) return originalPrice;
-    if (discount > 100) return 0; // إذا كان الخصم 100% أو أكثر، يصبح السعر 0
+      const leadersMap = {};
+      leadersSnap.forEach(d => {
+        const ld = d.data();
+        if (ld.church) leadersMap[ld.church] = { id: d.id, ...ld };
+      });
 
-    return originalPrice * (1 - (discount / 100));
+      const churchSettings = {};
+      churchesSnap.forEach(d => churchSettings[d.id] = d.data());
+
+      const compStats = {};
+      const process = (snap) => {
+        snap.forEach(d => {
+          const church = d.id;
+          const comps = d.data().competitions || {};
+          if (!compStats[church]) compStats[church] = { totalSubs: 0, totalPayment: 0 };
+          Object.values(comps).forEach(c => {
+            compStats[church].totalSubs += c.count || 0;
+            compStats[church].totalPayment += c.totalPrice || 0;
+          });
+        });
+      };
+
+      process(sportSnap);
+      process(otherSnap);
+
+      const result = churchList.map(churchName => {
+        const leader = leadersMap[churchName];
+        const stats = compStats[churchName] || { totalSubs: 0, totalPayment: 0 };
+        const discount = churchSettings[churchName]?.discountPercentage || 0;
+        const totalAfterDiscount = stats.totalPayment * (1 - discount / 100);
+
+        return {
+          church: churchName,
+          leader: leader ? `${leader.firstName} ${leader.lastName}` : "—",
+          subscribers: stats.totalSubs,
+          totalPayment: stats.totalPayment,
+          discountPercentage: discount,
+          totalPaymentAfterDiscount: totalAfterDiscount,
+          paid: leader?.paid || false,
+          id: leader?.id,
+        };
+      });
+
+      setData(result);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handlePaidToggle = async (id, churchName, currentPaidStatus) => {
     if (!id || !churchName) return;
-
     try {
-      // تحديث حالة الدفع للخادم
-      await updateDoc(doc(db, "leaders", id), {
-        paid: !currentPaidStatus,
-      });
-
-      // تحديث حالة الدفع للكنيسة في كولكشن 'churches'
-      await updateDoc(doc(db, "churches", churchName), {
-        paid: !currentPaidStatus,
-      });
-
-      // تحديث الحالة المحلية لعكس التغيير فورا
-      setData((prev) =>
-        prev.map((item) =>
-          item.id === id ? { ...item, paid: !currentPaidStatus } : item
-        )
-      );
-    } catch (error) {
-      console.error("Error updating paid status:", error);
-      alert("فشل تحديث حالة الدفع. الرجاء المحاولة مرة أخرى.");
+      const nextStatus = !currentPaidStatus;
+      await Promise.all([
+        updateDoc(doc(db, "leaders", id), { paid: nextStatus }),
+        setDoc(doc(db, "churches", churchName), { paid: nextStatus }, { merge: true })
+      ]);
+      setData(prev => prev.map(item => item.id === id ? { ...item, paid: nextStatus } : item));
+    } catch (err) {
+      console.error(err);
     }
   };
 
-  const handleDiscountChange = async (churchName, newDiscountValue) => {
-    let newDiscount = parseFloat(newDiscountValue);
-    if (isNaN(newDiscount) || newDiscount < 0) {
-      newDiscount = 0;
-    }
-    if (newDiscount > 100) {
-      newDiscount = 100;
-    }
-
+  const handleDiscountChange = async (churchName, value) => {
+    let discount = Math.min(100, Math.max(0, parseFloat(value) || 0));
     try {
-      // تحديث نسبة الخصم في كولكشن 'churches'
-      await updateDoc(doc(db, "churches", churchName), {
-        discountPercentage: newDiscount,
-      });
-
-      // تحديث الحالة المحلية لعكس التغيير فورا
-      setData((prevData) =>
-        prevData.map((item) => {
-          if (item.church === churchName) {
-            const updatedTotalAfterDiscount = calculatePriceAfterDiscount(
-              item.totalPayment, // هذا هو الإجمالي قبل الخصم
-              newDiscount
-            );
-            return {
-              ...item,
-              discountPercentage: newDiscount,
-              totalPaymentAfterDiscount: updatedTotalAfterDiscount,
-            };
-          }
-          return item;
-        })
-      );
-    } catch (error) {
-      console.error("Error updating discount percentage:", error);
-      alert("فشل تحديث نسبة الخصم في قاعدة البيانات. الرجاء المحاولة مرة أخرى.");
+      await setDoc(doc(db, "churches", churchName), { discountPercentage: discount }, { merge: true });
+      setData(prev => prev.map(item => {
+        if (item.church === churchName) {
+          return {
+            ...item,
+            discountPercentage: discount,
+            totalPaymentAfterDiscount: item.totalPayment * (1 - discount / 100)
+          };
+        }
+        return item;
+      }));
+    } catch (err) {
+      console.error(err);
     }
   };
 
-  const fetchData = async () => {
-    const leadersSnapshot = await getDocs(collection(db, "leaders"));
-    const sportSnapshot = await getDocs(collection(db, "church_competitions"));
-    const otherSnapshot = await getDocs(collection(db, "other-competitions"));
-
-    const allCompetitionsDocs = [...sportSnapshot.docs, ...otherSnapshot.docs];
-
-    const result = [];
-
-    for (const churchName of churchList) {
-      const leader = leadersSnapshot.docs.find(
-        (doc) => doc.data().church === churchName
-      );
-
-      const churchCompsDocs = allCompetitionsDocs.filter(
-        (compDoc) => compDoc.id === churchName
-      );
-
-      let totalSubs = 0;
-      let totalPaymentBeforeDiscount = 0; // هذا يمثل عمود 'السعر'
-      let discountPercentage = 0; // قيمة افتراضية
-
-      // جلب مستند الكنيسة من كولكشن 'churches' للحصول على نسبة الخصم الخاصة بها
-      const churchDocRef = doc(db, "churches", churchName);
-      const churchDocSnap = await getDoc(churchDocRef);
-
-      if (churchDocSnap.exists()) {
-        discountPercentage = churchDocSnap.data().discountPercentage || 0;
-      }
-
-      churchCompsDocs.forEach((compDoc) => {
-        const competitions = compDoc.data().competitions || {};
-        Object.values(competitions).forEach((compDetails) => {
-          totalSubs += compDetails.count || 0;
-          totalPaymentBeforeDiscount += compDetails.totalPrice || 0;
-        });
-      });
-
-      const totalPaymentAfterDiscount = calculatePriceAfterDiscount(
-        totalPaymentBeforeDiscount,
-        discountPercentage
-      );
-
-      const paid = leader?.data()?.paid || false;
-
-      const leaderName = leader?.data()
-        ? `${leader.data().firstName} ${leader.data().lastName}`
-        : "—";
-
-      result.push({
-        church: churchName,
-        leader: leaderName,
-        subscribers: totalSubs,
-        totalPayment: totalPaymentBeforeDiscount, // هذا هو 'السعر'
-        discountPercentage: discountPercentage,
-        totalPaymentAfterDiscount: totalPaymentAfterDiscount, // هذا هو 'السعر الإجمالي بعد الخصم'
-        paid,
-        id: leader?.id, // معرّف مستند الخادم
-      });
-
-      // 🏗️ كتابة أو تحديث البيانات في كولكشن churches
-      const docDataToSet = {
-        church: churchName,
-        leader: leaderName,
-        subscribers: totalSubs,
-        totalPayment: totalPaymentBeforeDiscount, // تخزين الإجمالي الأصلي
-        discountPercentage: discountPercentage,
-        totalPaymentAfterDiscount: totalPaymentAfterDiscount,
-        paid: paid,
-      };
-
-      if (leader?.id) {
-        docDataToSet.leaderId = leader.id;
-      }
-
-      // استخدام { merge: true } لتجنب الكتابة فوق الحقول الموجودة
-      await setDoc(doc(db, "churches", churchName), docDataToSet, { merge: true });
-    }
-
-    setData(result);
-    setLoading(false);
-  };
-
-  const downloadExcel = () => {
-    const exportData = data.map((row) => ({
-      "الكنيسة": row.church,
-      "الخادم": row.leader,
-      "عدد المشتركين": row.subscribers,
-      "السعر": row.totalPayment, // السعر الأصلي
-      "نسبة الخصم (%)": row.discountPercentage,
-      "السعر الإجمالي بعد الخصم": row.totalPaymentAfterDiscount,
-      "تم الدفع؟": row.paid ? "✔" : "✘",
-    }));
-
-    const worksheet = XLSX.utils.json_to_sheet(exportData);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Churches");
-    XLSX.writeFile(workbook, "churches_report.xlsx");
-  };
-
-  if (loading) return <p className="ad-church-loading">جاري التحميل...</p>;
+  if (authLoading || loading) return (
+    <div className="loading-container">
+      <div className="apple-spinner"></div>
+    </div>
+  );
 
   return (
-    <div className="ad-church-container">
-      <h1 className="ad-church-title">تقرير الكنائس والاشتراكات</h1>
-      <button className="ad-church-download-btn" onClick={downloadExcel}>
-        ⬇ تحميل Excel
-      </button>
-      <div className="ad-church-table-wrapper">
-        <table className="ad-church-table">
-          <thead>
-            <tr>
-              <th>الكنيسة</th>
-              <th>الخادم</th>
-              <th>عدد المشتركين</th>
-              <th>السعر</th>
-              <th>نسبة الخصم</th>
-              <th>السعر الإجمالي بعد الخصم</th>
-              <th>تم الدفع؟</th>
-            </tr>
-          </thead>
-          <tbody>
-            {data.map((church) => (
-              <tr key={church.church}> {/* هنا تبدأ المشكلة عادةً */}
-                <td>{church.church}</td> {/* تأكد من عدم وجود مسافة بين <td> و {church.church} */}
-                <td>{church.leader}</td>
-                <td>{church.subscribers}</td>
-                <td>{church.totalPayment.toLocaleString()} جـ</td>
-                <td>
-                  <input
-                    type="number"
-                    value={church.discountPercentage}
-                    onChange={(e) =>
-                      handleDiscountChange(church.church, e.target.value)
-                    }
-                    min="0"
-                    max="100"
-                    step="0.01"
-                    className="discount-input"
-                  />
-                  %
-                </td>
-                <td>{church.totalPaymentAfterDiscount.toLocaleString()} جـ</td>
-                <td>
-                  <input
-                    type="checkbox"
-                    checked={church.paid}
-                    onChange={() => handlePaidToggle(church.id, church.church, church.paid)}
-                  />
-                </td>
-              </tr> 
-            ))}
-          </tbody>
-        </table>
+    <div className="ad-church-container page-transition">
+      <div className="admin-header-flex">
+        <h1 className="text-gradient">تقرير الكنائس</h1>
+        <button className="btn-primary" onClick={() => {
+           const ws = XLSX.utils.json_to_sheet(data);
+           const wb = XLSX.utils.book_new();
+           XLSX.utils.book_append_sheet(wb, ws, "Report");
+           XLSX.writeFile(wb, "churches_report.xlsx");
+        }}>
+          <Download size={18} /> تحميل Excel
+        </button>
+      </div>
+
+      <div className="table-card glass-card">
+        <div className="ad-church-table-wrapper">
+          <table className="ad-church-table">
+            <thead>
+              <tr>
+                <th>الكنيسة</th>
+                <th>الخادم</th>
+                <th>المشتركين</th>
+                <th>المبلغ</th>
+                <th>الخصم</th>
+                <th>الصافي</th>
+                <th>الحالة</th>
+              </tr>
+            </thead>
+            <tbody>
+              {data.map((row) => (
+                <tr key={row.church}>
+                  <td className="church-name-td">{row.church}</td>
+                  <td>{row.leader}</td>
+                  <td className="font-bold">{row.subscribers}</td>
+                  <td>{row.totalPayment.toLocaleString()} جـ</td>
+                  <td>
+                    <div className="discount-cell">
+                      <input
+                        type="number"
+                        value={row.discountPercentage}
+                        onChange={(e) => handleDiscountChange(row.church, e.target.value)}
+                        className="discount-input"
+                      />
+                      <span>%</span>
+                    </div>
+                  </td>
+                  <td className="font-bold color-primary">{Math.round(row.totalPaymentAfterDiscount).toLocaleString()} جـ</td>
+                  <td>
+                    <button
+                      className={`status-toggle ${row.paid ? 'is-paid' : ''}`}
+                      onClick={() => handlePaidToggle(row.id, row.church, row.paid)}
+                    >
+                      {row.paid ? <CheckCircle size={20} /> : <XCircle size={20} />}
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );

@@ -1,66 +1,49 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { db, auth } from "@/lib/firebase";
-import { addDoc, collection, getDocs, query, where, doc, getDoc } from "firebase/firestore";
-import { onAuthStateChanged } from "firebase/auth";
+import { db } from "@/lib/firebase";
+import { addDoc, collection, query, where, onSnapshot } from "firebase/firestore";
+import { useAuth } from "@/lib/AuthContext";
 import { useRouter } from "next/navigation";
+import { Plus, X, UserPlus, Phone, Mail, BadgeDollarSign } from "lucide-react";
 import "./page.css";
 
 export default function LeaderMembersPage() {
+  const { user, userData, loading: authLoading } = useAuth();
   const router = useRouter();
-  const [user, setUser] = useState(null);
-  const [leaderData, setLeaderData] = useState({ gender: "", grade: "" });
+
   const [members, setMembers] = useState([]);
   const [formData, setFormData] = useState({ name: "", phone: "", email: "" });
   const [showForm, setShowForm] = useState(false);
+  const [dataLoading, setDataLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-      if (currentUser) {
-        console.log("✅ Logged in as:", currentUser.uid);
+    if (authLoading) return;
+    if (!user) {
+      router.push("/login");
+      return;
+    }
 
-        try {
-          const docRef = doc(db, "leaders", currentUser.uid);
-          const docSnap = await getDoc(docRef);
+    // Real-time listener for "Instant" updates
+    const mQuery = query(
+      collection(db, "members"),
+      where("leaderId", "==", user.uid)
+    );
 
-          if (docSnap.exists()) {
-            const userData = docSnap.data();
-
-            if (userData.approved && userData.role === "leader") {
-              setUser(currentUser);
-              setLeaderData({
-                gender: userData.gender || "غير محدد",
-                grade: userData.grade || "غير محددة",
-              });
-
-              const mQuery = query(
-                collection(db, "members"),
-                where("leaderId", "==", currentUser.uid)
-              );
-              const mSnapshot = await getDocs(mQuery);
-              const fetchedMembers = mSnapshot.docs.map((doc) => ({
-                id: doc.id,
-                ...doc.data(),
-              }));
-              setMembers(fetchedMembers);
-            } else {
-              router.push("/unauthorized");
-            }
-          } else {
-            router.push("/register");
-          }
-        } catch (error) {
-          console.error("Error fetching leader data:", error);
-          router.push("/login");
-        }
-      } else {
-        router.push("/login");
-      }
+    const unsubscribe = onSnapshot(mQuery, (snapshot) => {
+      const fetchedMembers = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setMembers(fetchedMembers);
+      setDataLoading(false);
+    }, (error) => {
+      console.error("Error fetching members:", error);
+      setDataLoading(false);
     });
 
     return () => unsubscribe();
-  }, [router]);
+  }, [user, authLoading, router]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -69,126 +52,104 @@ export default function LeaderMembersPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (!user) {
-      alert("جاري تحميل البيانات...");
-      return;
-    }
-
-    if (!formData.name || !formData.phone) {
-      alert("الاسم ورقم التليفون مطلوبين");
-      return;
-    }
-
-    const dataToSave = {
-      ...formData,
-      leaderId: user.uid,
-      gender: leaderData.gender,
-      grade: leaderData.grade,
-      joinedCompetitions: [],
-      totalFees: 0,
-    };
-
-    console.log("🟢 Preparing to save member with data:", dataToSave);
+    if (!formData.name || !formData.phone) return;
 
     try {
-      await addDoc(collection(db, "members"), dataToSave);
-      alert("تم إضافة المخدوم بنجاح");
+      const dataToSave = {
+        ...formData,
+        leaderId: user.uid,
+        gender: userData.gender || "غير محدد",
+        grade: userData.grade || "غير محددة",
+        church: userData.church || "",
+        joinedCompetitions: [],
+        totalFees: 0,
+        createdAt: new Date(),
+      };
 
+      await addDoc(collection(db, "members"), dataToSave);
       setFormData({ name: "", phone: "", email: "" });
       setShowForm(false);
-
-      const mQuery = query(
-        collection(db, "members"),
-        where("leaderId", "==", user.uid)
-      );
-      const mSnapshot = await getDocs(mQuery);
-      const fetchedMembers = mSnapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-      setMembers(fetchedMembers);
     } catch (error) {
-      console.error("❌ Error while adding member:", error);
       alert("حدث خطأ أثناء الإضافة: " + error.message);
     }
   };
 
-  return (
-    <div className="mem-container">
-      <h1 className="mem-title">المخدومين</h1>
+  if (authLoading || dataLoading) {
+    return (
+      <div className="loading-container">
+        <div className="apple-spinner"></div>
+      </div>
+    );
+  }
 
-      <button
-        onClick={() => setShowForm(!showForm)}
-        className="mem-toggle-button"
-      >
-        {showForm ? "إغلاق" : "+ إضافة مخدوم"}
-      </button>
+  return (
+    <div className="mem-container page-transition">
+      <div className="mem-header">
+        <h1 className="text-gradient">المخدومين</h1>
+        <button
+          onClick={() => setShowForm(!showForm)}
+          className={`btn-primary ${showForm ? 'btn-danger' : ''}`}
+        >
+          {showForm ? <X size={20} /> : <Plus size={20} />}
+          {showForm ? "إغلاق" : "إضافة مخدوم"}
+        </button>
+      </div>
 
       {showForm && (
-        <form onSubmit={handleSubmit} className="mem-form">
-          <label>
-            الاسم الرباعي <span className="mem-required">(إجباري)</span>
-          </label>
-          <input
-            type="text"
-            name="name"
-            value={formData.name}
-            onChange={handleChange}
-            required
-          />
+        <div className="form-overlay">
+          <form onSubmit={handleSubmit} className="mem-form glass-card page-transition">
+            <h3>بيانات المخدوم الجديد</h3>
+            <div className="input-group">
+              <label>الاسم الرباعي</label>
+              <input type="text" name="name" value={formData.name} onChange={handleChange} required placeholder="أدخل الاسم بالكامل" />
+            </div>
 
-          <label>
-            رقم التليفون <span className="mem-required">(إجباري)</span>
-          </label>
-          <input
-            type="tel"
-            name="phone"
-            value={formData.phone}
-            onChange={handleChange}
-            required
-          />
+            <div className="input-group">
+              <label>رقم التليفون</label>
+              <input type="tel" name="phone" value={formData.phone} onChange={handleChange} required placeholder="01234567890" />
+            </div>
 
-          <label>
-            الإيميل <span className="mem-optional">(اختياري)</span>
-          </label>
-          <input
-            type="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-          />
+            <div className="input-group">
+              <label>الإيميل (اختياري)</label>
+              <input type="email" name="email" value={formData.email} onChange={handleChange} placeholder="example@mail.com" />
+            </div>
 
-          <button type="submit" className="mem-submit-button">
-            حفظ المخدوم
-          </button>
-        </form>
+            <button type="submit" className="btn-primary full-width">حفظ البيانات</button>
+          </form>
+        </div>
       )}
 
-      <table className="mem-table">
-        <thead>
-          <tr>
-            <th>الاسم</th>
-            <th>رقم التليفون</th>
-            <th>الإيميل</th>
-            <th>النوع</th>
-            <th>المرحلة</th>
-            <th>المال المطلوب</th>
-          </tr>
-        </thead>
-        <tbody>
-          {members.map((member) => (
-            <tr key={member.id}>
-              <td>{member.name}</td>
-              <td>{member.phone}</td>
-              <td>{member.email || "-"}</td>
-              <td>{member.gender}</td>
-              <td>{member.grade}</td>
-              <td className="mem-fees">{member.totalFees || 0} ج.م</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <div className="members-grid">
+        {members.length === 0 ? (
+          <div className="empty-state glass-card">
+            <UserPlus size={48} />
+            <p>لا يوجد مخدومين حالياً. ابدأ بإضافة أول مخدوم!</p>
+          </div>
+        ) : (
+          members.map((member) => (
+            <div key={member.id} className="member-card glass-card">
+              <div className="member-main">
+                <h4>{member.name}</h4>
+                <div className="member-info-row">
+                  <Phone size={14} /> <span>{member.phone}</span>
+                </div>
+                {member.email && (
+                  <div className="member-info-row">
+                    <Mail size={14} /> <span>{member.email}</span>
+                  </div>
+                )}
+              </div>
+              <div className="member-footer">
+                <div className="badge">{member.grade}</div>
+                <div className="fees-badge">
+                  <BadgeDollarSign size={16} />
+                  <span>{member.totalFees || 0} ج.م</span>
+                </div>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
     </div>
   );
 }

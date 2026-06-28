@@ -1,69 +1,61 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
-import { onAuthStateChanged } from "firebase/auth";
-import { doc, getDoc } from "firebase/firestore";
-import { auth, db } from "@/lib/firebase";
+import { useState } from "react";
+import { auth } from "@/lib/firebase";
 import { usePathname } from "next/navigation";
+import { useAuth } from "@/lib/AuthContext";
+import {
+  BarChart3,
+  Clock,
+  Church,
+  Trophy,
+  FolderOpen,
+  Settings,
+  User,
+  Users,
+  LogOut,
+  MoreHorizontal,
+  ChevronUp
+} from "lucide-react";
 
 export default function LeaderNavbar() {
-  const [role, setRole] = useState(null);
+  const { userData, loading } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const pathname = usePathname();
 
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        const userDoc = await getDoc(doc(db, "leaders", user.uid));
-        if (userDoc.exists()) {
-          const data = userDoc.data();
-          // Handling the "admin " with space issue just in case
-          const cleanRole = data.role?.trim();
-          if (cleanRole === "admin" || data.approved === true) {
-            setRole(cleanRole);
-          }
-        }
-      } else {
-        setRole(null);
-      }
-    });
+  // Don't show navbar if loading or if user is not approved/doesn't have a role
+  if (loading || !userData) return null;
+  if (!userData.approved && userData.role !== "admin") return null;
 
-    return () => unsubscribe();
-  }, []);
-
-  if (!role) return null;
-
+  const role = userData.role?.trim();
   const isActive = (path) => pathname === path;
 
   const adminLinks = [
-    { name: "الإحصائيات", href: "/admin/general", icon: "📊" },
-    { name: "المنتظرين", href: "/admin/pending", icon: "⏳" },
-    { name: "الكنائس", href: "/admin/details", icon: "⛪" },
-    { name: "المسابقات", href: "/admin/competitions", icon: "🏆" },
-    { name: "البيانات", href: "/admin/churches", icon: "📂" },
-    { name: "الإعدادات", href: "/admin/setup", icon: "⚙️" },
+    { name: "الإحصائيات", href: "/admin/general", icon: <BarChart3 size={20} /> },
+    { name: "المنتظرين", href: "/admin/pending", icon: <Clock size={20} /> },
+    { name: "الكنائس", href: "/admin/details", icon: <Church size={20} /> },
+    { name: "المسابقات", href: "/admin/competitions", icon: <Trophy size={20} /> },
+    { name: "البيانات", href: "/admin/churches", icon: <FolderOpen size={20} /> },
+    { name: "الإعدادات", href: "/admin/setup", icon: <Settings size={20} /> },
   ];
 
   const leaderLinks = [
-    { name: "حسابي", href: "/leader/profile", icon: "👤" },
-    { name: "كنيستي", href: "/leader/church-info", icon: "⛪" },
-    { name: "المشتركين", href: "/leader/members", icon: "👥" },
+    { name: "حسابي", href: "/leader/profile", icon: <User size={20} /> },
+    { name: "كنيستي", href: "/leader/church-info", icon: <Church size={20} /> },
+    { name: "المشتركين", href: "/leader/members", icon: <Users size={20} /> },
   ];
 
   const links = role === "admin" ? adminLinks : leaderLinks;
-  // Main links for the bar (first 3 or 4)
   const barLinks = links.slice(0, 4);
   const moreLinks = links.slice(4);
 
   return (
     <>
-      {/* Background overlay for menu */}
       {isMenuOpen && (
         <div className="menu-overlay" onClick={() => setIsMenuOpen(false)} />
       )}
 
-      {/* More Menu Drawer */}
       <div className={`more-menu-drawer ${isMenuOpen ? "open" : ""}`}>
         <div className="menu-header">المزيد</div>
         <div className="menu-links">
@@ -78,19 +70,17 @@ export default function LeaderNavbar() {
               <span className="menu-text">{link.name}</span>
             </Link>
           ))}
-          {/* Default links for everyone in more menu */}
           <button
             className="menu-item logout"
             onClick={() => auth.signOut()}
-            style={{ width: '100%', border: 'none', background: 'none', color: '#ff4d4f' }}
+            style={{ width: '100%', border: 'none', background: 'none' }}
           >
-            <span className="menu-icon">🚪</span>
+            <span className="menu-icon"><LogOut size={20} /></span>
             <span className="menu-text">تسجيل الخروج</span>
           </button>
         </div>
       </div>
 
-      {/* Main Bottom Navbar */}
       <nav className="liquid-nav-bottom">
         <div className="nav-container">
           {barLinks.map((link) => (
@@ -104,18 +94,17 @@ export default function LeaderNavbar() {
             </Link>
           ))}
 
-          {/* Hamburger / More Button */}
-          <button
-            className={`nav-link more-btn ${isMenuOpen ? "active" : ""}`}
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-          >
-            <div className="hamburger-icon">
-              <span></span>
-              <span></span>
-              <span></span>
-            </div>
-            <span className="nav-label">المزيد</span>
-          </button>
+          {links.length > 4 && (
+            <button
+              className={`nav-link more-btn ${isMenuOpen ? "active" : ""}`}
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+            >
+              <span className="nav-icon">
+                {isMenuOpen ? <ChevronUp size={22} /> : <MoreHorizontal size={22} />}
+              </span>
+              <span className="nav-label">المزيد</span>
+            </button>
+          )}
         </div>
       </nav>
     </>

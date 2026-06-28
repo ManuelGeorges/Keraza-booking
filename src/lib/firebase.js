@@ -1,7 +1,8 @@
 
 import { initializeApp, getApps } from "firebase/app";
-import { getFirestore } from "firebase/firestore";
+import { getFirestore, initializeFirestore, persistentLocalCache, persistentMultipleTabManager } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
+
 const firebaseConfig = {
   apiKey: "AIzaSyC5EyBuPfkc9giJbfIe_Ut9Cw5wYZlpC94",
   authDomain: "keraza-shark.firebaseapp.com",
@@ -14,7 +15,11 @@ const firebaseConfig = {
 
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApps()[0];
 
-const db = getFirestore(app);
+// Enable persistent cache for "instant" loading
+const db = initializeFirestore(app, {
+  localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() })
+});
+
 const auth = getAuth(app);
 
 export { db, auth };

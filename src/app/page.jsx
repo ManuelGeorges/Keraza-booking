@@ -2,33 +2,31 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { onAuthStateChanged } from "firebase/auth";
-import { doc, getDoc } from "firebase/firestore";
-import { auth, db } from "@/lib/firebase";
+import { useAuth } from "@/lib/AuthContext";
 
 export default function HomePage() {
   const router = useRouter();
+  const { user, userData, loading } = useAuth();
 
   useEffect(() => {
-    const checkUserStatus = async () => {
-      onAuthStateChanged(auth, async (user) => {
-        if (!user) {
-          // لو مش مسجل
-          router.push("/register");
-        } else {
-          // نجيب بياناته من Firestore
-          const userDoc = await getDoc(doc(db, "leaders", user.uid));
-          const data = userDoc.data();
+    if (loading) return;
 
-          if (data && data.approved === false) {
-            router.push("/waiting");
-          }
+    if (!user) {
+      router.push("/login");
+    } else if (userData) {
+      if (userData.approved === false) {
+        router.push("/waiting");
+      } else if (userData.role === "admin") {
+        router.push("/admin/general");
+      } else {
+        router.push("/leader/profile");
+      }
+    }
+  }, [user, userData, loading, router]);
 
-          // لو approved = true هنسيبه في الصفحة الحالية مؤقتًا
-        }
-      });
-    };
-
-    checkUserStatus();
-  }, [router]);
+  return (
+    <div className="loading-container">
+      <div className="apple-spinner"></div>
+    </div>
+  );
 }
