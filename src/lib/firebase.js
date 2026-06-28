@@ -3,15 +3,14 @@ import { initializeApp, getApps } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 const firebaseConfig = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
-  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
-  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
+  apiKey: "AIzaSyC5EyBuPfkc9giJbfIe_Ut9Cw5wYZlpC94",
+  authDomain: "keraza-shark.firebaseapp.com",
+  projectId: "keraza-shark",
+  storageBucket: "keraza-shark.firebasestorage.app",
+  messagingSenderId: "126837559653",
+  appId: "1:126837559653:web:39199642dd1dcb31b0918c",
+  measurementId: "G-ZCNS652NET"
 };
-
 
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApps()[0];
 
