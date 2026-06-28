@@ -1,248 +1,161 @@
-@import url('https://fonts.googleapis.com/css2?family=Cairo&display=swap');
-
 .mem-container {
-  max-width: 950px;
-  margin: 30px auto;
-  padding: 30px;
-  background: linear-gradient(135deg, #f0f4ff 0%, #d9e4ff 100%);
-  font-family: 'Cairo', sans-serif;
-  border-radius: 18px;
-  box-shadow: 0 12px 30px rgba(98, 92, 230, 0.2);
-  animation: fadeInScale 0.7s ease forwards;
-  color: #2c2c54;
-}
-
-@keyframes fadeInScale {
-  0% {
-    opacity: 0;
-    transform: scale(0.9);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1);
-  }
+  max-width: 1000px;
+  margin: 40px auto;
+  padding: 3rem;
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border);
+  border-radius: 2.5rem;
+  box-shadow: var(--glass-shadow);
+  direction: rtl;
+  animation: fadeIn 0.8s ease-out;
 }
 
 .mem-title {
   text-align: center;
-  font-size: 36px;
-  margin-bottom: 30px;
-  color: #473bf0;
-  letter-spacing: 1.5px;
-  font-weight: 700;
-  text-shadow: 0 0 8px rgba(71, 59, 240, 0.5);
+  font-size: 2.5rem;
+  font-weight: 800;
+  margin-bottom: 2.5rem;
+  background: linear-gradient(to right, #ffffff, #e0e7ff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 4px 10px rgba(0,0,0,0.2);
 }
 
 .mem-toggle-button {
   display: block;
-  margin: 0 auto 25px;
-  padding: 14px 36px;
-  background: linear-gradient(45deg, #5a42f4, #9c7af5);
+  margin: 0 auto 2rem;
+  padding: 14px 40px;
+  background: var(--primary);
   color: #fff;
   border: none;
   border-radius: 12px;
-  font-size: 18px;
+  font-size: 1.1rem;
   font-weight: 700;
   cursor: pointer;
-  box-shadow: 0 6px 12px rgba(90, 66, 244, 0.5);
-  transition: all 0.4s ease;
-  filter: drop-shadow(0 4px 5px rgba(90,66,244,0.3));
+  transition: var(--transition);
+  box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
 }
 
 .mem-toggle-button:hover {
-  background: linear-gradient(45deg, #7d68ff, #c3b8ff);
+  background: var(--primary-hover);
   transform: translateY(-3px);
-  box-shadow: 0 10px 20px rgba(125, 104, 255, 0.6);
-  filter: drop-shadow(0 6px 8px rgba(125,104,255,0.5));
+  box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
 }
 
 .mem-form {
-  background: white;
-  border-radius: 20px;
-  padding: 28px 35px;
-  margin-bottom: 40px;
-  box-shadow: 0 0 20px rgba(98, 92, 230, 0.15);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--glass-border);
+  border-radius: 2rem;
+  padding: 2.5rem;
+  margin-bottom: 3rem;
   display: flex;
   flex-direction: column;
-  gap: 18px;
-  animation: slideUpFade 0.6s ease forwards;
-}
-
-@keyframes slideUpFade {
-  0% {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  gap: 1.5rem;
 }
 
 .mem-form label {
   font-weight: 700;
-  color: #574b9c;
-  font-size: 17px;
-  letter-spacing: 0.8px;
+  color: white;
+  font-size: 1.1rem;
 }
 
 .mem-form input,
 .mem-form select {
-  padding: 14px 18px;
-  font-size: 16px;
-  border: 2px solid #b0aeea;
-  border-radius: 10px;
-  background-color: #f9faff;
-  color: #3c3c70;
-  transition: border-color 0.3s ease, box-shadow 0.3s ease;
-  outline-offset: 2px;
-  font-weight: 600;
-  font-family: 'Cairo', sans-serif;
+  padding: 12px 18px;
+  font-size: 1rem;
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  transition: var(--transition);
 }
 
 .mem-form input:focus,
 .mem-form select:focus {
-  border-color: #473bf0;
-  box-shadow: 0 0 10px rgba(71, 59, 240, 0.4);
-  background-color: #ffffff;
+  border-color: var(--primary);
+  background: rgba(255, 255, 255, 0.15);
+  outline: none;
 }
 
 .mem-submit-button {
-  margin-top: 12px;
-  padding: 16px 0;
-  background: linear-gradient(45deg, #6b52ff, #a694ff);
+  margin-top: 1rem;
+  padding: 16px;
+  background: var(--secondary);
   color: white;
   font-weight: 800;
-  font-size: 20px;
+  font-size: 1.2rem;
   border: none;
   border-radius: 14px;
   cursor: pointer;
-  box-shadow: 0 6px 18px rgba(107, 82, 255, 0.6);
-  transition: background 0.5s ease, transform 0.3s ease, box-shadow 0.3s ease;
-  letter-spacing: 1.2px;
+  transition: var(--transition);
+  box-shadow: 0 4px 15px rgba(236, 72, 153, 0.3);
 }
 
 .mem-submit-button:hover {
-  background: linear-gradient(45deg, #7a65ff, #c0b6ff);
-  transform: translateY(-4px);
-  box-shadow: 0 10px 30px rgba(122, 101, 255, 0.75);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(236, 72, 153, 0.4);
+}
+
+.mem-table-wrapper {
+  overflow-x: auto;
+  border-radius: 1.5rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--glass-border);
 }
 
 .mem-table {
   width: 100%;
-  border-collapse: separate;
-  border-spacing: 0 12px;
-  background-color: transparent;
-  font-size: 17px;
-  color: #3b3b7a;
-  font-weight: 600;
-  box-shadow: 0 0 30px rgba(98, 92, 230, 0.1);
-  border-radius: 18px;
-  overflow: hidden;
+  border-collapse: collapse;
+  color: white;
 }
 
 .mem-table thead tr {
-  background: linear-gradient(90deg, #5a42f4, #9c7af5);
-  color: white;
+  background: rgba(99, 102, 241, 0.3);
+}
+
+.mem-table th {
+  padding: 18px;
   font-weight: 700;
-  letter-spacing: 1.1px;
-  font-size: 18px;
-  border-radius: 18px 18px 0 0;
+  border-bottom: 1px solid var(--glass-border);
 }
 
-.mem-table thead th {
-  padding: 14px 20px;
+.mem-table td {
+  padding: 15px 18px;
   text-align: center;
-  position: relative;
-}
-
-.mem-table tbody tr {
-  background: #f5f6ff;
-  box-shadow: 0 4px 15px rgba(125, 104, 255, 0.15);
-  transition: background-color 0.3s ease, transform 0.2s ease;
-  border-radius: 14px;
-  cursor: default;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .mem-table tbody tr:hover {
-  background-color: #d9d9ff;
-  transform: scale(1.02);
-  box-shadow: 0 10px 25px rgba(125, 104, 255, 0.3);
-}
-
-.mem-table tbody td {
-  padding: 14px 20px;
-  border: none;
-  color: #4b4b8f;
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .mem-fees {
-  color: #6b52ff;
-  font-weight: 900;
-  font-size: 18px;
-  letter-spacing: 0.8px;
+  color: var(--secondary);
+  font-weight: 800;
+  font-size: 1.2rem;
 }
 
 .mem-required {
-  color: #b83280;
-  font-weight: 700;
-  margin-left: 6px;
-  font-size: 14px;
+  color: #f87171;
+  font-size: 0.9rem;
+  margin-right: 5px;
 }
 
 .mem-optional {
-  color: #777;
-  font-weight: 600;
-  margin-left: 6px;
-  font-size: 13px;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.8rem;
+  margin-right: 5px;
 }
 
 @media (max-width: 768px) {
   .mem-container {
-    padding: 20px 15px;
-    margin: 20px auto;
+    padding: 1.5rem;
+    margin: 20px 1rem;
   }
 
   .mem-title {
-    font-size: 28px;
-  }
-
-  .mem-toggle-button,
-  .mem-submit-button {
-    width: 100%;
-  }
-
-  .mem-form {
-    padding: 20px 15px;
-  }
-
-  .mem-table thead tr {
-    display: none;
-  }
-
-  .mem-table tbody tr {
-    display: block;
-    margin-bottom: 15px;
-    box-shadow: 0 8px 18px rgba(107, 82, 255, 0.12);
-    border-radius: 16px;
-  }
-
-  .mem-table tbody td {
-    display: flex;
-    justify-content: space-between;
-    padding: 12px 15px;
-    font-size: 16px;
-  }
-
-  .mem-table tbody td::before {
-    content: attr(data-label);
-    font-weight: 700;
-    color: #6b52ff;
-    flex-basis: 40%;
-    text-align: left;
-  }
-
-  .mem-fees {
-    font-size: 17px;
+    font-size: 1.8rem;
   }
 }

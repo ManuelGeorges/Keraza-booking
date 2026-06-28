@@ -1,172 +1,93 @@
-/** ✅ File: app/admin/general/page.css */
-
 .ad-gen-container {
   width: 100%;
-  max-width: 800px;
-  margin: 50px auto;
-  padding: 30px;
-  background: linear-gradient(135deg, #f0f4ff, #e3e7ff);
-  border-radius: 20px;
-  box-shadow: 0 0 20px rgba(30, 60, 90, 0.1);
-  font-family: 'Cairo', sans-serif;
-  animation: fadeIn 1s ease-in-out;
+  max-width: 1200px;
+  margin: 40px auto;
+  padding: 2rem;
+  direction: rtl;
+  animation: fadeIn 0.8s ease-out;
 }
 
 .ad-gen-title {
   text-align: center;
-  font-size: 40px;
+  font-size: 2.8rem;
   font-weight: 800;
-  color: #3a3a3a;
-  margin-bottom: 30px;
-  animation: fadeInTitle 1.5s ease;
-}
-li{
-    position: relative;
-    bottom: -200px;
-    font-size: 20px;
-}
-@keyframes fadeInTitle {
-  0% { letter-spacing: -2px; opacity: 0; }
-  100% { letter-spacing: 1px; opacity: 1; }
+  margin-bottom: 3rem;
+  background: linear-gradient(to right, #ffffff, #e0e7ff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 4px 10px rgba(0,0,0,0.2);
 }
 
 .ad-gen-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 40px;
-  justify-content: center;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 2rem;
 }
-.recharts-layer .recharts-pie{
-    height: 500px !important;
-}
-.ad-gen-chart-box {
-  background-color: #fff;
-  border-radius: 20px;
-    padding: 60px 20px 30px;
 
-  width: 100%;
-  min-width: 320px;
-  max-width: 500px;
-  min-height: 600px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.07);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  animation: floatIn 1.2s ease;
+.ad-gen-chart-box {
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius);
+  padding: 2rem;
+  box-shadow: var(--glass-shadow);
+  transition: var(--transition);
+  min-height: 450px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: flex-start;
-  position: relative;
-  overflow: hidden;
 }
 
 .ad-gen-chart-box:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
-}
-
-@keyframes floatIn {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
+  transform: translateY(-8px);
+  box-shadow: 0 15px 45px rgba(0, 0, 0, 0.3);
+  background: rgba(255, 255, 255, 0.15);
 }
 
 .ad-gen-chart-title {
   text-align: center;
-  font-size: 24px;
-  font-weight: bold;
-  color: #333;
-  margin-bottom: 30px;
-  animation: slideIn 0.8s ease;
-}
-
-@keyframes slideIn {
-  from { transform: translateX(-30px); opacity: 0; }
-  to { transform: translateX(0); opacity: 1; }
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: white;
+  margin-bottom: 2rem;
+  border-bottom: 2px solid var(--primary);
+  padding-bottom: 10px;
+  width: 100%;
 }
 
 .ad-gen-loading {
   text-align: center;
-  font-size: 22px;
-  padding: 40px;
-  color: #ff4d4f;
+  font-size: 1.5rem;
+  padding: 5rem;
+  color: white;
   font-weight: bold;
-  animation: blink 1s infinite;
+  backdrop-filter: blur(5px);
 }
 
-@keyframes blink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.4; }
+/* Recharts Customization to match Glass UI */
+.recharts-default-tooltip {
+  background-color: rgba(15, 23, 42, 0.9) !important;
+  border: 1px solid var(--glass-border) !important;
+  border-radius: 8px !important;
+  color: white !important;
 }
 
-/* Media Queries */
-@media (max-width: 992px) {
-  .ad-gen-container {
-    padding: 20px;
-  }
-
-  .ad-gen-title {
-    font-size: 32px;
-  }
-
-  .ad-gen-chart-box {
-    max-width: 100%;
-    padding: 25px 15px;
-    min-height: 600px;
-  }
-
-  .ad-gen-chart-title {
-    font-size: 22px;
-  }
+.recharts-legend-item-text {
+  color: rgba(255, 255, 255, 0.9) !important;
+  font-size: 0.9rem !important;
 }
 
 @media (max-width: 768px) {
+  .ad-gen-grid {
+    grid-template-columns: 1fr;
+  }
+
   .ad-gen-title {
-    font-size: 28px;
+    font-size: 2rem;
   }
 
   .ad-gen-chart-box {
-    min-height: 620px;
-  padding: 120px 80px 80px;
-  max-width: 500px;
+    min-height: 400px;
   }
-  .ad-gen-chart-title {
-    font-size: 20px;
-  }
-  li{
-    position: relative;
-    bottom:-50px;
-  }
-  .recharts-default-legend,
-  .recharts-tooltip-wrapper {
-    font-size: 12px !important;
-  }
-}
-
-@media (max-width: 576px) {
-  .ad-gen-title {
-    font-size: 24px;
-  }
-
-  .ad-gen-chart-box {
-    min-height: 640px;
-  }
-
-  .ad-gen-chart-title {
-    font-size: 18px;
-    margin-bottom: 25px;
-  }
-
-  .recharts-default-legend,
-  .recharts-tooltip-wrapper {
-    font-size: 11px !important;
-  }
-
-  li {
-    font-size: 14px !important;
-    line-height: 1.4;
-  }
-}
-
-.ad-gen-chart-box {
-  min-height: 700px; /* زودناها من 620 أو 660 */
-  padding-top: 100px; /* عشان ندي مساحة فوق الدايرة */
 }

@@ -1,121 +1,85 @@
-/* استيراد خط Cairo من Google Fonts */
-@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap');
-
-/* خلفية متدرجة متحركة */
-body {
-  margin: 0;
-  padding: 0;
-  font-family: 'Cairo', sans-serif;
-  background: linear-gradient(-45deg, #9adfff, #0026ff, #00ccff, #fbc2eb);
-  background-size: 400% 400%;
-  animation: gradientBG 12s ease infinite;
-  color: #222;
-}
-
-/* حاوية المحتوى */
 .wait-container {
-  max-width: 500px;
-  margin: 80px auto;
-  padding: 40px 30px;
-  background: rgba(255, 255, 255, 0.95);
-  border-radius: 24px;
-  box-shadow: 0 10px 35px rgba(0, 0, 0, 0.18);
+  max-width: 550px;
+  margin: 10vh auto;
+  padding: 3rem;
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border);
+  border-radius: 2.5rem;
+  box-shadow: var(--glass-shadow);
   text-align: center;
-  animation: fadeIn 1s ease;
-  backdrop-filter: blur(8px);
-}
-
-/* العنوان */
-.wait-title {
-  font-size: 30px;
-  font-weight: 700;
-  color: #6a1b9a;
-  margin-bottom: 20px;
-  letter-spacing: 1.2px;
-}
-
-/* الرسالة */
-.wait-message {
-  font-size: 19px;
-  color: #444;
-  line-height: 1.7;
-  margin-bottom: 30px;
-  font-weight: 600;
-}
-
-/* تحريك الخلفية */
-@keyframes gradientBG {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
-}
-
-/* تحريك للدخول */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* ميديا كويري للموبايل */
-@media (max-width: 600px) {
-  .wait-container {
-    margin: 40px 16px;
-    padding: 30px 20px;
-  }
-
-  .wait-title {
-    font-size: 26px;
-  }
-
-  .wait-message {
-    font-size: 17px;
-  }
-}
-
-/* صندوق بيانات التسجيل */
-.wait-info {
-  margin-top: 30px;
-  padding: 25px 20px;
-  background: #fff;
-  border-radius: 20px;
-  box-shadow: 0 6px 20px rgba(106, 27, 154, 0.15);
-  text-align: right;
+  animation: fadeIn 0.8s ease-out;
   direction: rtl;
-  font-weight: 600;
-  color: #3a3a3a;
-  letter-spacing: 0.7px;
-  border: 2px solid #6a1b9a;
+}
+
+.wait-title {
+  font-size: 2.5rem;
+  font-weight: 800;
+  margin-bottom: 1.5rem;
+  background: linear-gradient(to right, #ffffff, #e0e7ff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+
+.wait-message {
+  font-size: 1.25rem;
+  color: rgba(255, 255, 255, 0.9);
+  line-height: 1.8;
+  margin-bottom: 2.5rem;
+  font-weight: 500;
+}
+
+.wait-info {
+  margin-top: 2rem;
+  padding: 2rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 1.5rem;
+  border: 1px solid var(--glass-border);
+  text-align: right;
+  transition: var(--transition);
+}
+
+.wait-info:hover {
+  background: rgba(255, 255, 255, 0.1);
+  transform: translateY(-5px);
 }
 
 .wait-info h3 {
-  color: #6a1b9a;
-  margin-bottom: 14px;
-  font-weight: 700;
-  font-size: 20px;
+  color: var(--primary);
+  margin-bottom: 1.2rem;
+  font-weight: 800;
+  font-size: 1.5rem;
+  border-bottom: 1px solid var(--glass-border);
+  padding-bottom: 0.5rem;
 }
 
 .wait-info p {
-  font-size: 17px;
-  margin: 10px 0;
-  border-bottom: 1px solid #ddd;
-  padding-bottom: 6px;
+  font-size: 1.1rem;
+  color: white;
+  margin: 12px 0;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  justify-content: space-between;
 }
 
-/* تأثير subtle عند تحوم الفقرة */
-.wait-info p:hover {
-  background-color: #f3e5f5;
-  border-radius: 8px;
-  transition: background-color 0.3s ease;
+.wait-info p:last-child {
+  border-bottom: none;
+}
+
+@media (max-width: 600px) {
+  .wait-container {
+    margin: 5vh 1.5rem;
+    padding: 2rem 1.5rem;
+  }
+
+  .wait-title {
+    font-size: 1.8rem;
+  }
+
+  .wait-message {
+    font-size: 1.1rem;
+  }
 }

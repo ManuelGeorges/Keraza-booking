@@ -1,98 +1,118 @@
 .ad-pend-container {
   max-width: 900px;
   margin: 40px auto;
-  padding: 20px;
-  background: linear-gradient(to right, #e6f0ff, #f0f4ff);
-  border-radius: 20px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-  font-family: 'Cairo', sans-serif;
+  padding: 3rem;
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border);
+  border-radius: 2rem;
+  box-shadow: var(--glass-shadow);
+  direction: rtl;
+  animation: fadeIn 0.8s ease-out;
 }
 
 .ad-pend-title {
   text-align: center;
-  font-size: 30px;
-  font-weight: bold;
-  margin-bottom: 25px;
-  color: #003366;
+  font-size: 2.5rem;
+  font-weight: 800;
+  margin-bottom: 2.5rem;
+  background: linear-gradient(to right, #ffffff, #e0e7ff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 4px 10px rgba(0,0,0,0.2);
 }
 
 .ad-pend-empty {
   text-align: center;
-  font-size: 18px;
-  color: #777;
-  margin-top: 20px;
+  font-size: 1.2rem;
+  color: rgba(255, 255, 255, 0.7);
+  margin-top: 2rem;
+  padding: 2rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 1rem;
 }
 
 .ad-pend-list {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 1.2rem;
 }
 
 .ad-pend-card {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: white;
-  padding: 16px 20px;
-  border-radius: 15px;
-  box-shadow: 0 4px 12px rgba(0, 51, 102, 0.1);
-  transition: transform 0.2s ease;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 1.5rem 2rem;
+  border-radius: 1.5rem;
+  border: 1px solid var(--glass-border);
+  transition: var(--transition);
 }
 
 .ad-pend-card:hover {
-  transform: scale(1.01);
+  transform: translateX(-10px);
+  background: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
 }
 
 .ad-pend-user-info {
   display: flex;
   flex-direction: column;
+  gap: 5px;
 }
 
 .ad-pend-name {
-  font-size: 20px;
-  font-weight: bold;
-  color: #002244;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: white;
 }
 
 .ad-pend-email {
-  font-size: 14px;
-  color: #666;
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.6);
 }
 
 .ad-pend-approve-btn {
-  background-color: #28a745;
+  background: linear-gradient(to left, #10b981, #059669);
   color: white;
-  padding: 10px 18px;
-  font-size: 16px;
+  padding: 12px 25px;
+  font-size: 1.1rem;
   border: none;
-  border-radius: 10px;
+  border-radius: 12px;
+  font-weight: 700;
   cursor: pointer;
-  transition: background-color 0.2s ease;
+  transition: var(--transition);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
 }
 
 .ad-pend-approve-btn:hover {
-  background-color: #218838;
+  transform: scale(1.05);
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
 }
 
 .ad-pend-loading {
   text-align: center;
   margin-top: 60px;
-  font-size: 18px;
-  color: #444;
+  font-size: 1.5rem;
+  color: white;
+  backdrop-filter: blur(5px);
 }
 
-/* Responsive */
 @media (max-width: 600px) {
+  .ad-pend-container {
+    margin: 20px 1rem;
+    padding: 1.5rem;
+  }
+
   .ad-pend-card {
     flex-direction: column;
-    align-items: flex-start;
-    gap: 10px;
+    align-items: center;
+    text-align: center;
+    gap: 1.5rem;
   }
 
   .ad-pend-approve-btn {
-    align-self: flex-end;
     width: 100%;
-    text-align: center;
   }
 }
