@@ -24,7 +24,7 @@ export default function LeaderMembersPage() {
       return;
     }
 
-    // Real-time listener for "Instant" updates
+    // Real-time listener for "Instant" updates with table data
     const mQuery = query(
       collection(db, "members"),
       where("leaderId", "==", user.uid)
@@ -52,21 +52,30 @@ export default function LeaderMembersPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.name || !formData.phone) return;
+    if (!user) {
+      alert("جاري تحميل البيانات...");
+      return;
+    }
+
+    if (!formData.name || !formData.phone) {
+      alert("الاسم ورقم التليفون مطلوبين");
+      return;
+    }
 
     try {
       const dataToSave = {
         ...formData,
         leaderId: user.uid,
-        gender: userData.gender || "غير محدد",
-        grade: userData.grade || "غير محددة",
-        church: userData.church || "",
+        gender: userData?.gender || "غير محدد",
+        grade: userData?.grade || "غير محددة",
+        church: userData?.church || "",
         joinedCompetitions: [],
         totalFees: 0,
         createdAt: new Date(),
       };
 
       await addDoc(collection(db, "members"), dataToSave);
+      alert("تم إضافة المخدوم بنجاح");
       setFormData({ name: "", phone: "", email: "" });
       setShowForm(false);
     } catch (error) {
@@ -91,7 +100,7 @@ export default function LeaderMembersPage() {
           className={`btn-primary ${showForm ? 'btn-danger' : ''}`}
         >
           {showForm ? <X size={20} /> : <Plus size={20} />}
-          {showForm ? "إغلاق" : "إضافة مخدوم"}
+          {showForm ? "إغلاق" : "+ إضافة مخدوم"}
         </button>
       </div>
 
@@ -100,55 +109,58 @@ export default function LeaderMembersPage() {
           <form onSubmit={handleSubmit} className="mem-form glass-card page-transition">
             <h3>بيانات المخدوم الجديد</h3>
             <div className="input-group">
-              <label>الاسم الرباعي</label>
+              <label>الاسم الرباعي <span className="mem-required">(إجباري)</span></label>
               <input type="text" name="name" value={formData.name} onChange={handleChange} required placeholder="أدخل الاسم بالكامل" />
             </div>
 
             <div className="input-group">
-              <label>رقم التليفون</label>
+              <label>رقم التليفون <span className="mem-required">(إجباري)</span></label>
               <input type="tel" name="phone" value={formData.phone} onChange={handleChange} required placeholder="01234567890" />
             </div>
 
             <div className="input-group">
-              <label>الإيميل (اختياري)</label>
+              <label>الإيميل <span className="mem-optional">(اختياري)</span></label>
               <input type="email" name="email" value={formData.email} onChange={handleChange} placeholder="example@mail.com" />
             </div>
 
-            <button type="submit" className="btn-primary full-width">حفظ البيانات</button>
+            <button type="submit" className="btn-primary full-width">حفظ المخدوم</button>
           </form>
         </div>
       )}
 
-      <div className="members-grid">
-        {members.length === 0 ? (
-          <div className="empty-state glass-card">
-            <UserPlus size={48} />
-            <p>لا يوجد مخدومين حالياً. ابدأ بإضافة أول مخدوم!</p>
-          </div>
-        ) : (
-          members.map((member) => (
-            <div key={member.id} className="member-card glass-card">
-              <div className="member-main">
-                <h4>{member.name}</h4>
-                <div className="member-info-row">
-                  <Phone size={14} /> <span>{member.phone}</span>
-                </div>
-                {member.email && (
-                  <div className="member-info-row">
-                    <Mail size={14} /> <span>{member.email}</span>
-                  </div>
-                )}
-              </div>
-              <div className="member-footer">
-                <div className="badge">{member.grade}</div>
-                <div className="fees-badge">
-                  <BadgeDollarSign size={16} />
-                  <span>{member.totalFees || 0} ج.م</span>
-                </div>
-              </div>
-            </div>
-          ))
-        )}
+      <div className="table-card glass-card">
+        <div className="mem-table-wrapper">
+          <table className="mem-table">
+            <thead>
+              <tr>
+                <th>الاسم</th>
+                <th>رقم التليفون</th>
+                <th>الإيميل</th>
+                <th>النوع</th>
+                <th>المرحلة</th>
+                <th>المال المطلوب</th>
+              </tr>
+            </thead>
+            <tbody>
+              {members.length === 0 ? (
+                <tr>
+                  <td colSpan="6" className="empty-row">لا يوجد مخدومين حالياً.. ابدأ بإضافة مخدوم</td>
+                </tr>
+              ) : (
+                members.map((member) => (
+                  <tr key={member.id}>
+                    <td className="font-bold">{member.name}</td>
+                    <td>{member.phone}</td>
+                    <td>{member.email || "-"}</td>
+                    <td>{member.gender}</td>
+                    <td>{member.grade}</td>
+                    <td className="mem-fees-td">{member.totalFees || 0} ج.م</td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );
