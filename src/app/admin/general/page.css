@@ -1,58 +1,41 @@
 .ad-gen-container {
   width: 100%;
   max-width: 1200px;
-  margin: 40px auto;
+  margin: 20px auto;
   padding: 2rem;
   direction: rtl;
-  animation: fadeIn 0.8s ease-out;
 }
 
 .ad-gen-title {
   text-align: center;
-  font-size: 2.8rem;
+  font-size: 2.5rem;
   font-weight: 800;
-  margin-bottom: 3rem;
-  background: linear-gradient(to right, #ffffff, #e0e7ff);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  text-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  margin-bottom: 2.5rem;
+  color: var(--text-main);
 }
 
 .ad-gen-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-  gap: 2rem;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 24px;
 }
 
 .ad-gen-chart-box {
-  background: var(--glass-bg);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid var(--glass-border);
-  border-radius: var(--radius);
-  padding: 2rem;
-  box-shadow: var(--glass-shadow);
-  transition: var(--transition);
-  min-height: 450px;
+  padding: 24px;
+  min-height: 480px;
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
-.ad-gen-chart-box:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 15px 45px rgba(0, 0, 0, 0.3);
-  background: rgba(255, 255, 255, 0.15);
-}
-
 .ad-gen-chart-title {
   text-align: center;
-  font-size: 1.5rem;
+  font-size: 1.4rem;
   font-weight: 700;
-  color: white;
-  margin-bottom: 2rem;
-  border-bottom: 2px solid var(--primary);
-  padding-bottom: 10px;
+  color: var(--text-main);
+  margin-bottom: 24px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--glass-border);
   width: 100%;
 }
 
@@ -60,22 +43,30 @@
   text-align: center;
   font-size: 1.5rem;
   padding: 5rem;
-  color: white;
+  color: var(--text-main);
   font-weight: bold;
-  backdrop-filter: blur(5px);
 }
 
-/* Recharts Customization to match Glass UI */
+/* Recharts Customization for High Contrast */
 .recharts-default-tooltip {
-  background-color: rgba(15, 23, 42, 0.9) !important;
+  background: rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(10px);
   border: 1px solid var(--glass-border) !important;
-  border-radius: 8px !important;
-  color: white !important;
+  border-radius: 12px !important;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.1) !important;
+  padding: 10px !important;
+}
+
+.recharts-tooltip-label {
+  color: #000 !important;
+  font-weight: 700 !important;
+  margin-bottom: 4px;
 }
 
 .recharts-legend-item-text {
-  color: rgba(255, 255, 255, 0.9) !important;
-  font-size: 0.9rem !important;
+  color: var(--text-main) !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
 }
 
 @media (max-width: 768px) {
@@ -89,5 +80,6 @@
 
   .ad-gen-chart-box {
     min-height: 400px;
+    padding: 16px;
   }
 }
