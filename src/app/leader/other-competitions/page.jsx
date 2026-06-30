@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useMemo } from "react";
 import { auth, db } from "@/lib/firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import { doc, getDoc, setDoc, onSnapshot } from "firebase/firestore";
-import { Trophy, Wallet, CheckCircle2, AlertCircle, ChevronLeft, ChevronRight, Zap, Save, RefreshCcw } from "lucide-react";
+import { Trophy, Wallet, CheckCircle2, AlertCircle, ChevronLeft, ChevronRight, Zap, Save, RefreshCcw, Search, X } from "lucide-react";
 import "./page.css";
 
 const competitionsData = [
@@ -137,6 +137,7 @@ export default function OtherCompetitionsPage() {
   const [error, setError] = useState(null);
   const [activeSection, setActiveSection] = useState(competitionsData[0].sectionId);
   const [savingId, setSavingId] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
   const navRef = useRef(null);
 
   useEffect(() => {
@@ -217,6 +218,8 @@ export default function OtherCompetitionsPage() {
   }, [userChurch]);
 
   useEffect(() => {
+    if (searchTerm !== "") return; // Don't track scroll when searching
+
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -234,7 +237,16 @@ export default function OtherCompetitionsPage() {
     });
 
     return () => observer.disconnect();
-  }, [loading]);
+  }, [loading, searchTerm]);
+
+  const filteredData = useMemo(() => {
+    if (!searchTerm.trim()) return competitionsData;
+    const term = searchTerm.toLowerCase();
+    return competitionsData.map(section => ({
+      ...section,
+      items: section.items.filter(item => item.name.toLowerCase().includes(term))
+    })).filter(section => section.items.length > 0);
+  }, [searchTerm]);
 
   function handleInputChange(id, value) {
     if (!/^[0-9]*$/.test(value)) return;
@@ -280,7 +292,6 @@ export default function OtherCompetitionsPage() {
       );
 
       await setDoc(docRef, currentData, { merge: true });
-      // Clear input state for this ID after saving to hide the button
       setInputs((prev) => {
         const next = { ...prev };
         delete next[id];
@@ -296,7 +307,11 @@ export default function OtherCompetitionsPage() {
   const scrollNav = (direction) => {
     if (navRef.current) {
       const scrollAmount = 300;
-      navRef.current.scrollBy({ left: direction === 'left' ? -scrollAmount : scrollAmount, behavior: 'smooth' });
+      // In RTL: direction 'right' means scrolling towards the beginning (positive scrollLeft in some browsers, negative in others)
+      // Usually scrollBy({ left: value }) works relative to the coordinate system.
+      // We'll use a safer approach for RTL.
+      const multiplier = direction === 'left' ? -1 : 1;
+      navRef.current.scrollBy({ left: multiplier * scrollAmount, behavior: 'smooth' });
     }
   };
 
@@ -329,127 +344,162 @@ export default function OtherCompetitionsPage() {
         </div>
       </header>
 
-      <div className="nav-container-wrapper">
-        <button className="nav-arrow left" onClick={() => scrollNav('left')} aria-label="Scroll Left">
-          <ChevronLeft size={24} />
-        </button>
-        <nav ref={navRef} className="other-quick-nav">
-          {competitionsData.map(({ sectionId, sectionTitle }) => (
-            <button
-              key={sectionId}
-              onClick={() => {
-                const el = document.getElementById(sectionId);
-                if (el) {
-                  window.scrollTo({
-                    top: el.offsetTop - 120,
-                    behavior: "smooth"
-                  });
-                }
-              }}
-              className={`nav-chip ${activeSection === sectionId ? 'active' : ''}`}
-            >
-              {sectionTitle}
-            </button>
-          ))}
-        </nav>
-        <button className="nav-arrow right" onClick={() => scrollNav('right')} aria-label="Scroll Right">
-          <ChevronRight size={24} />
-        </button>
+      <div className="search-and-nav-container">
+        <div className="search-wrapper-premium glass-card">
+           <Search size={20} className="search-icon" />
+           <input
+              type="text"
+              placeholder="ابحث عن اسم المسابقة..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+           />
+           {searchTerm && (
+             <button className="clear-search" onClick={() => setSearchTerm("")}>
+               <X size={18} />
+             </button>
+           )}
+        </div>
+
+        {!searchTerm && (
+          <div className="smart-nav-outer">
+            <div className="nav-container-wrapper glass-card">
+              <button className="nav-arrow right" onClick={() => scrollNav('right')} aria-label="Scroll Right">
+                <ChevronRight size={24} />
+              </button>
+              <nav ref={navRef} className="other-quick-nav">
+                {competitionsData.map(({ sectionId, sectionTitle }) => (
+                  <button
+                    key={sectionId}
+                    onClick={() => {
+                      const el = document.getElementById(sectionId);
+                      if (el) {
+                        window.scrollTo({
+                          top: el.offsetTop - 120,
+                          behavior: "smooth"
+                        });
+                      }
+                    }}
+                    className={`nav-chip ${activeSection === sectionId ? 'active' : ''}`}
+                  >
+                    {sectionTitle}
+                  </button>
+                ))}
+              </nav>
+              <button className="nav-arrow left" onClick={() => scrollNav('left')} aria-label="Scroll Left">
+                <ChevronLeft size={24} />
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="other-sections-list">
-        {competitionsData.map(({ sectionId, sectionTitle, items }) => (
-          <section key={sectionId} id={sectionId} className="other-section-group">
-            <h2 className="section-title">{sectionTitle}</h2>
-            <div className="other-grid">
-              {items.map(({ id, name, pricePerUnit, isTeamCheckbox }) => {
-                const isFestival = id === "festival_subscription";
-                const competitionCount = counts.competitions[id]?.count || 0;
+        {filteredData.length === 0 ? (
+          <div className="empty-search-state glass-card">
+             <Search size={48} className="dimmed-icon" />
+             <p>لم يتم العثور على مسابقات بهذا الاسم</p>
+             <button className="btn-primary btn-sm" onClick={() => setSearchTerm("")}>إعادة تعيين</button>
+          </div>
+        ) : (
+          filteredData.map(({ sectionId, sectionTitle, items }) => (
+            <section key={sectionId} id={sectionId} className="other-section-group">
+              <h2 className="section-title">{sectionTitle}</h2>
+              <div className="other-grid">
+                {items.map(({ id, name, pricePerUnit, isTeamCheckbox }) => {
+                  const isFestival = id === "festival_subscription";
+                  const competitionCount = counts.competitions[id]?.count || 0;
 
-                // Detection logic: has the data changed compared to Firestore?
-                let hasChanged = false;
-                if (isTeamCheckbox) {
-                  const currentBool = competitionCount > 0;
-                  const inputBool = inputs[id] !== undefined ? inputs[id] : currentBool;
-                  hasChanged = inputs[id] !== undefined && inputBool !== currentBool;
-                } else if (!isFestival) {
-                  const inputVal = inputs[id];
-                  hasChanged = inputVal !== undefined && inputVal !== competitionCount.toString();
-                }
+                  let hasChanged = false;
+                  if (isTeamCheckbox) {
+                    const currentBool = competitionCount > 0;
+                    const inputBool = inputs[id] !== undefined ? inputs[id] : currentBool;
+                    hasChanged = inputs[id] !== undefined && inputBool !== currentBool;
+                  } else if (!isFestival) {
+                    const currentVal = competitionCount || 0;
+                    const inputVal = inputs[id] === "" ? 0 : (inputs[id] !== undefined ? parseInt(inputs[id]) : currentVal);
+                    hasChanged = inputs[id] !== undefined && inputVal !== currentVal;
+                  }
 
-                return (
-                  <div key={id} className="competition-card glass-card">
-                    <div className="card-info">
-                      <h3>{name}</h3>
-                      <span className="price-tag">{pricePerUnit} جـ / اشتراك</span>
-                    </div>
+                  return (
+                    <div key={id} className={`competition-card glass-card ${hasChanged ? 'card-changed' : ''}`}>
+                      <div className="card-info">
+                        <h3>{name}</h3>
+                        <span className="price-tag">{pricePerUnit} جـ / اشتراك</span>
+                      </div>
 
-                    <div className="card-actions">
-                      {isFestival ? (
-                        <div className="fixed-badge"><CheckCircle2 size={16} /> اشتراك مفعّل تلقائياً</div>
-                      ) : isTeamCheckbox ? (
-                        <div className="checkbox-action-wrapper">
-                          <div className="checkbox-action">
-                            <label className="apple-switch">
+                      <div className="card-actions">
+                        {isFestival ? (
+                          <div className="fixed-badge"><CheckCircle2 size={16} /> اشتراك مفعّل تلقائياً</div>
+                        ) : isTeamCheckbox ? (
+                          <div className="action-flex-column">
+                            <div className="checkbox-row">
+                              <label className="apple-switch">
+                                <input
+                                  type="checkbox"
+                                  checked={inputs[id] !== undefined ? inputs[id] : (competitionCount > 0)}
+                                  onChange={(e) => handleCheckboxChange(id, e.target.checked)}
+                                />
+                                <span className="slider"></span>
+                              </label>
+                              <span className="action-label">مشارك بالفريق؟</span>
+                            </div>
+
+                            <button
+                              className={`btn-save-premium ${hasChanged ? 'visible' : ''}`}
+                              onClick={() => handleSubmit(id)}
+                              disabled={savingId === id}
+                            >
+                              <div className="btn-content">
+                                 {savingId === id ? <RefreshCcw className="spin" size={18} /> : <Save size={18} />}
+                                 <span>حفظ التعديل</span>
+                              </div>
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="action-flex-column">
+                            <div className="input-row-premium">
                               <input
-                                type="checkbox"
-                                checked={inputs[id] !== undefined ? inputs[id] : (competitionCount > 0)}
-                                onChange={(e) => handleCheckboxChange(id, e.target.checked)}
+                                type="number"
+                                placeholder="العدد"
+                                className="mini-input-premium"
+                                value={inputs[id] !== undefined ? inputs[id] : (competitionCount || "")}
+                                onChange={(e) => handleInputChange(id, e.target.value)}
                               />
-                              <span className="slider"></span>
-                            </label>
-                            <span className="action-label">مشارك بالفريق؟</span>
+                            </div>
+
+                            <button
+                              className={`btn-save-premium ${hasChanged ? 'visible' : ''}`}
+                              onClick={() => handleSubmit(id)}
+                              disabled={savingId === id}
+                            >
+                              <div className="btn-content">
+                                 {savingId === id ? <RefreshCcw className="spin" size={18} /> : <Zap size={18} />}
+                                 <span>تحديث البيانات</span>
+                              </div>
+                            </button>
                           </div>
-                          <button
-                            className={`btn-liquid-save ${hasChanged ? 'visible' : ''}`}
-                            onClick={() => handleSubmit(id)}
-                            disabled={savingId === id}
-                          >
-                            {savingId === id ? <RefreshCcw className="spin" size={16} /> : <Save size={16} />}
-                            <span>حفظ التعديل</span>
-                          </button>
-                        </div>
-                      ) : (
-                        <div className="input-action-wrapper">
-                          <div className="input-action">
-                            <input
-                              type="number"
-                              placeholder="العدد"
-                              className="mini-input-premium"
-                              value={inputs[id] !== undefined ? inputs[id] : (competitionCount || "")}
-                              onChange={(e) => handleInputChange(id, e.target.value)}
-                            />
+                        )}
+                      </div>
+
+                      {competitionCount > 0 && !isFestival && (
+                        <div className="card-status-premium success">
+                          <div className="stat-pill">
+                             <span className="label">العدد:</span>
+                             <strong>{competitionCount}</strong>
                           </div>
-                          <button
-                            className={`btn-liquid-update ${hasChanged ? 'visible' : ''}`}
-                            onClick={() => handleSubmit(id)}
-                            disabled={savingId === id}
-                          >
-                            {savingId === id ? <RefreshCcw className="spin" size={16} /> : <Zap size={16} />}
-                            <span>تحديث البيانات</span>
-                          </button>
+                          <div className="stat-pill">
+                             <span className="label">الإجمالي:</span>
+                             <strong>{counts.competitions[id].totalPrice.toLocaleString()} جـ</strong>
+                          </div>
                         </div>
                       )}
                     </div>
-
-                    {competitionCount > 0 && !isFestival && (
-                      <div className="card-status success-premium">
-                        <div className="status-item">
-                           <span className="status-label">المسجل حالياً:</span>
-                           <strong>{competitionCount} مشارك</strong>
-                        </div>
-                        <div className="status-item">
-                           <span className="status-label">إجمالي التكلفة:</span>
-                           <strong>{counts.competitions[id].totalPrice.toLocaleString()} جـ</strong>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          </section>
-        ))}
+                  );
+                })}
+              </div>
+            </section>
+          ))
+        )}
       </div>
     </div>
   );
