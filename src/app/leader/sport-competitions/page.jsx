@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { auth, db } from "@/lib/firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import { doc, getDoc, setDoc, onSnapshot } from "firebase/firestore";
-import { Dribbble, Wallet, Plus, Save, AlertCircle } from "lucide-react";
+import { Activity, Wallet, Plus, Save, AlertCircle } from "lucide-react";
 import "./page.css";
 
 const competitionsData = [
@@ -146,7 +146,7 @@ export default function SportCompetitionsPage() {
   return (
     <div className="sport-page-container page-transition">
       <header className="sport-header glass-card">
-        <div className="header-icon"><Dribbble size={40} /></div>
+        <div className="header-icon"><Activity size={40} /></div>
         <h1 className="text-gradient">المسابقات الرياضية</h1>
         <div className="total-badge">
           <Wallet size={20} />
