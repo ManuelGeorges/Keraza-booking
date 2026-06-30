@@ -14,12 +14,11 @@ export default function LeaderMembersPage() {
   const [members, setMembers] = useState([]);
   const [formData, setFormData] = useState({ name: "", phone: "", email: "" });
   const [showForm, setShowForm] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       if (currentUser) {
-        console.log("✅ Logged in as:", currentUser.uid);
-
         try {
           const docRef = doc(db, "leaders", currentUser.uid);
           const docSnap = await getDoc(docRef);
@@ -34,16 +33,7 @@ export default function LeaderMembersPage() {
                 grade: userData.grade || "غير محددة",
               });
 
-              const mQuery = query(
-                collection(db, "members"),
-                where("leaderId", "==", currentUser.uid)
-              );
-              const mSnapshot = await getDocs(mQuery);
-              const fetchedMembers = mSnapshot.docs.map((doc) => ({
-                id: doc.id,
-                ...doc.data(),
-              }));
-              setMembers(fetchedMembers);
+              fetchMembers(currentUser.uid);
             } else {
               router.push("/unauthorized");
             }
@@ -53,6 +43,8 @@ export default function LeaderMembersPage() {
         } catch (error) {
           console.error("Error fetching leader data:", error);
           router.push("/login");
+        } finally {
+          setLoading(false);
         }
       } else {
         router.push("/login");
@@ -61,6 +53,19 @@ export default function LeaderMembersPage() {
 
     return () => unsubscribe();
   }, [router]);
+
+  const fetchMembers = async (uid) => {
+    const mQuery = query(
+      collection(db, "members"),
+      where("leaderId", "==", uid)
+    );
+    const mSnapshot = await getDocs(mQuery);
+    const fetchedMembers = mSnapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+    setMembers(fetchedMembers);
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -89,106 +94,134 @@ export default function LeaderMembersPage() {
       totalFees: 0,
     };
 
-    console.log("🟢 Preparing to save member with data:", dataToSave);
-
     try {
       await addDoc(collection(db, "members"), dataToSave);
       alert("تم إضافة المخدوم بنجاح");
 
       setFormData({ name: "", phone: "", email: "" });
       setShowForm(false);
-
-      const mQuery = query(
-        collection(db, "members"),
-        where("leaderId", "==", user.uid)
-      );
-      const mSnapshot = await getDocs(mQuery);
-      const fetchedMembers = mSnapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-      setMembers(fetchedMembers);
+      fetchMembers(user.uid);
     } catch (error) {
       console.error("❌ Error while adding member:", error);
       alert("حدث خطأ أثناء الإضافة: " + error.message);
     }
   };
 
-  return (
-    <div className="mem-container">
-      <h1 className="mem-title">المخدومين</h1>
+  if (loading) {
+    return (
+      <div className="loading-container">
+        <div className="apple-spinner"></div>
+      </div>
+    );
+  }
 
-      <button
-        onClick={() => setShowForm(!showForm)}
-        className="mem-toggle-button"
-      >
-        {showForm ? "إغلاق" : "+ إضافة مخدوم"}
-      </button>
+  return (
+    <div className="mem-container page-transition">
+      <header className="mem-header">
+        <h1 className="text-gradient">المخدومين</h1>
+        <button
+          onClick={() => setShowForm(true)}
+          className="btn-primary"
+        >
+          <span>+</span> إضافة مخدوم
+        </button>
+      </header>
 
       {showForm && (
-        <form onSubmit={handleSubmit} className="mem-form">
-          <label>
-            الاسم الرباعي <span className="mem-required">(إجباري)</span>
-          </label>
-          <input
-            type="text"
-            name="name"
-            value={formData.name}
-            onChange={handleChange}
-            required
-          />
+        <div className="form-overlay" onClick={() => setShowForm(false)}>
+          <div className="glass-card mem-form" onClick={(e) => e.stopPropagation()}>
+            <h3>إضافة مخدوم جديد</h3>
+            <p className="subtitle">أدخل بيانات المخدوم ليتم ربطه بك</p>
 
-          <label>
-            رقم التليفون <span className="mem-required">(إجباري)</span>
-          </label>
-          <input
-            type="tel"
-            name="phone"
-            value={formData.phone}
-            onChange={handleChange}
-            required
-          />
+            <form onSubmit={handleSubmit}>
+              <div className="input-group">
+                <label>الاسم الرباعي <span className="required">*</span></label>
+                <input
+                  type="text"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  placeholder="مثال: أبانوب عماد شكري"
+                  required
+                />
+              </div>
 
-          <label>
-            الإيميل <span className="mem-optional">(اختياري)</span>
-          </label>
-          <input
-            type="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-          />
+              <div className="input-group">
+                <label>رقم التليفون <span className="required">*</span></label>
+                <input
+                  type="tel"
+                  name="phone"
+                  value={formData.phone}
+                  onChange={handleChange}
+                  placeholder="01xxxxxxxxx"
+                  required
+                />
+              </div>
 
-          <button type="submit" className="mem-submit-button">
-            حفظ المخدوم
-          </button>
-        </form>
+              <div className="input-group">
+                <label>الإيميل (اختياري)</label>
+                <input
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  placeholder="example@mail.com"
+                />
+              </div>
+
+              <div className="form-actions">
+                <button type="submit" className="btn-primary full-width">
+                  حفظ البيانات
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowForm(false)}
+                  className="btn-secondary"
+                >
+                  إلغاء
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
       )}
 
-      <table className="mem-table">
-        <thead>
-          <tr>
-            <th>الاسم</th>
-            <th>رقم التليفون</th>
-            <th>الإيميل</th>
-            <th>النوع</th>
-            <th>المرحلة</th>
-            <th>المال المطلوب</th>
-          </tr>
-        </thead>
-        <tbody>
-          {members.map((member) => (
-            <tr key={member.id}>
-              <td>{member.name}</td>
-              <td>{member.phone}</td>
-              <td>{member.email || "-"}</td>
-              <td>{member.gender}</td>
-              <td>{member.grade}</td>
-              <td className="mem-fees">{member.totalFees || 0} ج.م</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <div className="members-grid">
+        {members.length === 0 ? (
+          <div className="glass-card empty-state">
+             <div className="empty-icon">👥</div>
+             <h3>لا يوجد مخدومين حالياً</h3>
+             <p>ابدأ بإضافة أول مخدوم في مجموعتك</p>
+          </div>
+        ) : (
+          members.map((member) => (
+            <div key={member.id} className="glass-card member-card">
+              <div className="member-main">
+                <h4>{member.name}</h4>
+                <div className="member-info-row">
+                  <span className="icon">📱</span>
+                  <span>{member.phone}</span>
+                </div>
+                {member.email && (
+                  <div className="member-info-row">
+                    <span className="icon">📧</span>
+                    <span>{member.email}</span>
+                  </div>
+                )}
+              </div>
+              <div className="member-footer">
+                <div className="badges">
+                  <span className="badge">{member.gender}</span>
+                  <span className="badge">{member.grade}</span>
+                </div>
+                <div className="fees-badge">
+                  <span>{member.totalFees || 0} ج.م</span>
+                </div>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
     </div>
   );
 }

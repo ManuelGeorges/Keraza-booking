@@ -39,13 +39,11 @@ export default function SetupPage() {
     setLoading(true);
     setStatus("⏳ جاري تهيئة البيانات بسرعة...");
     try {
-      // Process churches in parallel chunks to avoid hitting rate limits while staying fast
       const processChurch = async (churchName) => {
         const churchRef = doc(db, "churches", churchName);
         const compRef = doc(db, "church_competitions", churchName);
         const otherCompRef = doc(db, "other-competitions", churchName);
 
-        // Run checks in parallel for each church
         const [churchSnap, compSnap, otherSnap] = await Promise.all([
           getDoc(churchRef),
           getDoc(compRef),
@@ -66,10 +64,8 @@ export default function SetupPage() {
         if (tasks.length > 0) await Promise.all(tasks);
       };
 
-      // Execute all church initializations in parallel
       await Promise.all(churches.map(name => processChurch(name)));
-
-      setStatus("✅ تم تهيئة قاعدة البيانات بنجاح وبسرعة قياسية!");
+      setStatus("✅ تم تهيئة قاعدة البيانات بنجاح!");
     } catch (error) {
       console.error(error);
       setStatus("❌ حدث خطأ أثناء التهيئة: " + error.message);
@@ -78,31 +74,34 @@ export default function SetupPage() {
   };
 
   return (
-    <div className="setup-container glass-card page-transition" style={{ maxWidth: '600px', margin: '10vh auto', padding: '40px', textAlign: 'center' }}>
-      <h1 className="text-gradient">إعداد النظام</h1>
-      <p style={{ margin: '20px 0', color: 'var(--text-muted)' }}>تقوم هذه الصفحة بتهيئة الكنائس والمستندات المطلوبة على Firebase.</p>
+    <div className="container" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '70vh' }}>
+      <div className="glass-card w-full" style={{ maxWidth: '500px' }}>
+        <h1 className="text-gradient mb-20">إعداد النظام</h1>
+        <p className="mb-20" style={{ color: 'var(--text-muted)' }}>
+          تقوم هذه الصفحة بتهيئة الكنائس والمستندات المطلوبة على النظام.
+        </p>
 
-      <button
-        onClick={initializeDatabase}
-        disabled={loading}
-        className="btn-primary"
-        style={{ width: '100%', padding: '16px' }}
-      >
-        {loading ? "جاري التهيئة..." : "ابدأ التهيئة الآن"}
-      </button>
+        <button
+          onClick={initializeDatabase}
+          disabled={loading}
+          className="btn-primary w-full"
+        >
+          {loading ? "جاري التهيئة..." : "ابدأ التهيئة الآن"}
+        </button>
 
-      {status && (
-        <div style={{
-          marginTop: "30px",
-          padding: "16px",
-          borderRadius: "12px",
-          backgroundColor: "rgba(0,0,0,0.05)",
-          color: "var(--text-main)",
-          fontSize: "14px"
-        }}>
-          {status}
-        </div>
-      )}
+        {status && (
+          <div className="mt-20" style={{
+            padding: "16px",
+            borderRadius: "12px",
+            backgroundColor: "rgba(0,0,0,0.05)",
+            color: "var(--text-main)",
+            fontSize: "14px",
+            textAlign: 'center'
+          }}>
+            {status}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

@@ -44,9 +44,9 @@ export default function LeaderNavbar() {
   const leaderLinks = [
     { name: "حسابي", href: "/leader/profile", icon: <User size={20} /> },
     { name: "كنيستي", href: "/leader/church-info", icon: <Church size={20} /> },
-    { name: "المشتركين", href: "/leader/members", icon: <Users size={20} /> },
-    { name: "رياضية", href: "/leader/sport-competitions", icon: <Activity size={20} /> },
     { name: "أخرى", href: "/leader/other-competitions", icon: <Trophy size={20} /> },
+    { name: "رياضية", href: "/leader/sport-competitions", icon: <Activity size={20} /> },
+    { name: "المشتركين", href: "/leader/members", icon: <Users size={20} /> },
   ];
 
   const links = role === "admin" ? adminLinks : leaderLinks;

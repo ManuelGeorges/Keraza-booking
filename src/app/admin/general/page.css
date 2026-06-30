@@ -1,28 +1,25 @@
 .ad-gen-container {
   width: 100%;
   max-width: 1200px;
-  margin: 20px auto;
-  padding: 2rem;
+  margin: 0 auto;
+  padding: 20px;
   direction: rtl;
 }
 
 .ad-gen-title {
   text-align: center;
-  font-size: 2.5rem;
-  font-weight: 800;
-  margin-bottom: 2.5rem;
-  color: var(--text-main);
+  margin-bottom: 32px;
 }
 
 .ad-gen-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-  gap: 24px;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
 }
 
 .ad-gen-chart-box {
-  padding: 24px;
-  min-height: 480px;
+  padding: 20px;
+  min-height: 400px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -30,56 +27,22 @@
 
 .ad-gen-chart-title {
   text-align: center;
-  font-size: 1.4rem;
+  font-size: 1.2rem;
   font-weight: 700;
   color: var(--text-main);
-  margin-bottom: 24px;
+  margin-bottom: 20px;
   padding-bottom: 12px;
   border-bottom: 1px solid var(--glass-border);
   width: 100%;
 }
 
-.ad-gen-loading {
-  text-align: center;
-  font-size: 1.5rem;
-  padding: 5rem;
-  color: var(--text-main);
-  font-weight: bold;
-}
-
-/* Recharts Customization for High Contrast */
-.recharts-default-tooltip {
-  background: rgba(255, 255, 255, 0.95) !important;
-  backdrop-filter: blur(10px);
-  border: 1px solid var(--glass-border) !important;
-  border-radius: 12px !important;
-  box-shadow: 0 8px 30px rgba(0,0,0,0.1) !important;
-  padding: 10px !important;
-}
-
-.recharts-tooltip-label {
-  color: #000 !important;
-  font-weight: 700 !important;
-  margin-bottom: 4px;
-}
-
-.recharts-legend-item-text {
-  color: var(--text-main) !important;
-  font-size: 13px !important;
-  font-weight: 500 !important;
-}
-
-@media (max-width: 768px) {
-  .ad-gen-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .ad-gen-title {
-    font-size: 2rem;
+@media (max-width: 480px) {
+  .ad-gen-container {
+    padding: 10px;
   }
 
   .ad-gen-chart-box {
-    min-height: 400px;
-    padding: 16px;
+    padding: 15px;
+    min-height: 350px;
   }
 }

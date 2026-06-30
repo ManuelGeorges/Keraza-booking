@@ -12,6 +12,7 @@ import {
   updateDoc,
   doc,
 } from "firebase/firestore";
+import { UserCheck, Clock, Mail, Church, ShieldCheck } from "lucide-react";
 import "./page.css";
 
 export default function PendingLeadersPage() {
@@ -48,50 +49,96 @@ export default function PendingLeadersPage() {
   };
 
   const handleApprove = async (userId) => {
-    const userRef = doc(db, "leaders", userId);
-    await updateDoc(userRef, {
-      approved: true,
-      role: "leader",
-      approvedAt: new Date(),
-    });
+    try {
+      const userRef = doc(db, "leaders", userId);
+      await updateDoc(userRef, {
+        approved: true,
+        role: "leader",
+        approvedAt: new Date(),
+      });
 
-    setPendingLeaders((prev) =>
-      prev.filter((user) => user.id !== userId)
-    );
+      setPendingLeaders((prev) =>
+        prev.filter((user) => user.id !== userId)
+      );
+      alert("تم تفعيل حساب الخادم بنجاح");
+    } catch (error) {
+      alert("حدث خطأ أثناء التفعيل");
+    }
   };
 
   if (authLoading || dataLoading) {
     return (
       <div className="loading-container">
         <div className="apple-spinner"></div>
-        <p className="ad-pend-loading">جارٍ التحميل بسرعة...</p>
+        <p className="ad-pend-loading-text">جارٍ تحميل طلبات الانضمام...</p>
       </div>
     );
   }
 
   return (
-    <div className="ad-pend-container glass-card page-transition">
-      <h1 className="ad-pend-title">الخدام المنتظرين الموافقة</h1>
+    <div className="ad-pend-container page-transition">
+      <header className="ad-pend-header">
+        <div className="title-section">
+          <h1 className="text-gradient">طلبات الانضمام</h1>
+          <p className="subtitle">مراجعة وتفعيل حسابات الخدام الجدد</p>
+        </div>
+        <div className="stats-badge">
+          <Clock size={16} />
+          <span>{pendingLeaders.length} طلبات معلقة</span>
+        </div>
+      </header>
+
       {pendingLeaders.length === 0 ? (
-        <p className="ad-pend-empty">لا يوجد خدام حالياً 👌</p>
+        <div className="glass-card empty-state-box">
+          <div className="empty-icon">✨</div>
+          <h3>لا توجد طلبات معلقة</h3>
+          <p>تمت الموافقة على جميع طلبات الخدام الحالية.</p>
+        </div>
       ) : (
-        <ul className="ad-pend-list">
+        <div className="ad-pend-grid">
           {pendingLeaders.map((user) => (
-            <li key={user.id} className="ad-pend-card glass-card">
+            <div key={user.id} className="glass-card ad-pend-card">
+              <div className="card-accent"></div>
               <div className="ad-pend-user-info">
-                <p className="ad-pend-name">{user.firstName + " " + user.lastName}</p>
-                <p className="ad-pend-church">{user.church}</p>
-                <p className="ad-pend-email">{user.email}</p>
+                <div className="user-main">
+                   <div className="avatar-placeholder">
+                     {user.firstName?.[0]}{user.lastName?.[0]}
+                   </div>
+                   <div>
+                     <h3 className="ad-pend-name">{user.firstName} {user.lastName}</h3>
+                     <div className="info-row">
+                       <Church size={14} />
+                       <span className="ad-pend-church">{user.church}</span>
+                     </div>
+                   </div>
+                </div>
+
+                <div className="details-list">
+                  <div className="info-row">
+                    <Mail size={14} />
+                    <span className="ad-pend-email">{user.email}</span>
+                  </div>
+                  {user.phone && (
+                    <div className="info-row">
+                      <span className="icon">📱</span>
+                      <span>{user.phone}</span>
+                    </div>
+                  )}
+                </div>
               </div>
-              <button
-                className="btn-primary"
-                onClick={() => handleApprove(user.id)}
-              >
-               تفعيل الحساب
-              </button>
-            </li>
+
+              <div className="ad-pend-actions">
+                <button
+                  className="btn-primary full-width"
+                  onClick={() => handleApprove(user.id)}
+                >
+                  <ShieldCheck size={18} />
+                  تفعيل الحساب الآن
+                </button>
+              </div>
+            </div>
           ))}
-        </ul>
+        </div>
       )}
     </div>
   );

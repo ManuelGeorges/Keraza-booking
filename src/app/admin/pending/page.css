@@ -1,67 +1,158 @@
 .ad-pend-container {
-  max-width: 900px;
-  margin: 40px auto;
-  padding: 30px;
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 40px 20px;
   direction: rtl;
 }
 
-.ad-pend-title {
-  text-align: center;
-  font-size: 2.5rem;
-  margin-bottom: 2rem;
-}
-
-.ad-pend-empty {
-  text-align: center;
-  font-size: 1.2rem;
-  color: var(--text-muted);
-  margin-top: 2rem;
-  padding: 3rem;
-  border-radius: var(--radius-lg);
-  border: 1px dashed var(--glass-border);
-}
-
-.ad-pend-list {
+.ad-pend-header {
   display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  list-style: none;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 40px;
+}
+
+.ad-pend-header h1 {
+  font-size: 2.5rem;
+  margin-bottom: 8px;
+}
+
+.subtitle {
+  color: var(--text-muted);
+  font-size: 1rem;
+}
+
+.stats-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: rgba(0, 113, 227, 0.1);
+  color: var(--primary);
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+/* Grid Layout */
+.ad-pend-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 24px;
 }
 
 .ad-pend-card {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 20px 24px;
-}
-
-.ad-pend-user-info {
+  padding: 24px;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 24px;
+  position: relative;
+  overflow: hidden;
+  transition: var(--transition);
+}
+
+.card-accent {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 4px;
+  height: 100%;
+  background: var(--primary);
+  opacity: 0.5;
+}
+
+.user-main {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.avatar-placeholder {
+  width: 56px;
+  height: 56px;
+  background: linear-gradient(135deg, var(--primary) 0%, #00d4ff 100%);
+  color: white;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 1.2rem;
+  box-shadow: 0 8px 16px rgba(0, 113, 227, 0.2);
 }
 
 .ad-pend-name {
-  font-size: 1.2rem;
+  font-size: 1.25rem;
   font-weight: 700;
   color: var(--text-main);
+  margin-bottom: 4px;
+}
+
+.info-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-muted);
+  font-size: 0.9rem;
 }
 
 .ad-pend-church {
-  font-size: 0.95rem;
   color: var(--primary);
   font-weight: 600;
 }
 
-.ad-pend-email {
-  font-size: 0.9rem;
+.details-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px;
+  background: rgba(0, 0, 0, 0.03);
+  border-radius: var(--radius-md);
+}
+
+[data-theme='dark'] .details-list {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.ad-pend-actions {
+  margin-top: auto;
+}
+
+/* Empty State */
+.empty-state-box {
+  padding: 80px 40px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.empty-icon {
+  font-size: 4rem;
+  margin-bottom: 10px;
+}
+
+.ad-pend-loading-text {
+  margin-top: 20px;
   color: var(--text-muted);
+  font-weight: 500;
+}
+
+.full-width {
+  width: 100%;
 }
 
 @media (max-width: 600px) {
-  .ad-pend-card {
+  .ad-pend-header {
     flex-direction: column;
+    align-items: center;
     text-align: center;
-    gap: 1.5rem;
+    gap: 20px;
+  }
+
+  .ad-pend-grid {
+    grid-template-columns: 1fr;
   }
 }
