@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useMemo } from "react";
 import { db } from "@/lib/firebase";
-import { collection, getDocs, doc, getDoc } from "firebase/firestore";
+import { collection, getDocs } from "firebase/firestore";
 import { useAuth } from "@/lib/AuthContext";
 import { useRouter } from "next/navigation";
 import {
@@ -10,25 +10,105 @@ import {
   Pie,
   Cell,
   Tooltip,
-  Legend,
   ResponsiveContainer,
 } from "recharts";
 import * as XLSX from "xlsx";
-import { Download, Search } from "lucide-react";
+import { Download, Search, Trophy, Users, DollarSign, BarChart3 } from "lucide-react";
 import "./page.css";
 
-const COLORS = ["#0071e3", "#34c759", "#ff9500", "#ff3b30", "#af52de", "#5856d6", "#5ac8fa"];
+const COLORS = ["#0071e3", "#34c759", "#ff9500", "#ff3b30", "#af52de", "#5856d6", "#5ac8fa", "#ff2d55"];
 
 const competitionNamesInArabic = {
-  "karaza": "مسابقة الكرازة",
-  "alhan": "مسابقة الألحان",
-  "research": "مسابقة البحث",
-  "service": "مسابقة الخدمة",
-  "holy_bible": "مسابقة الكتاب المقدس",
-  "creative": "مسابقة الابتكار",
-  "talents": "مسابقة المواهب",
-  "sports": "المسابقات الرياضية",
-  // ... maps to many more
+  // مسابقات المهرجان الأساسية
+  "festival_subscription": "إشتراك حجز المهرجان للكنيسة (إلزامى)",
+
+  // مسابقة روحى الأسكندرية
+  "rouhi_alex_kindergarten_1": "روحي مرحلة حضانة - الفريق الأول",
+  "rouhi_alex_grade1_2_1": " روحي مرحلة أولى وثانية ابتدائي - الفريق الأول",
+  "rouhi_alex_grade3_4_1": "روحي مرحلة ثالثة ورابعة ابتدائي - الفريق الأول",
+  "rouhi_alex_grade5_6_1": "روحي مرحلة خامسة وسادسة ابتدائي - الفريق الأول",
+  "rouhi_alex_kindergarten_extra": "روحي مرحلة حضانة - الفريق الإضافي",
+  "rouhi_alex_grade1_2_extra": "روحي مرحلة أولى وثانية ابتدائي - الفريق الإضافي",
+  "rouhi_alex_grade3_4_extra": "روحي مرحلة ثالثة ورابعة ابتدائي - الفريق الإضافي",
+  "rouhi_alex_grade5_6_extra": "روحي مرحلة خامسة وسادسة ابتدائي - الفريق الإضافي",
+
+  // الألحان
+  "melodies_level1": "الألحان - المستوى الأول - فريق",
+  "melodies_level2": "الألحان - المستوى الثاني - فريق",
+  "melodies_talented_individual": "الألحان - مستوي الموهوبين - فردي",
+  "melodies_talented_group": "الألحان - مستوي الموهوبين - جماعي",
+
+  // الأنشطة الكنسية
+  "church_activities_big_theatre": "المسرح الكبير - فريق",
+  "church_activities_chorus": "الكورال - فريق",
+  "church_activities_cantata": "الكنتاتا - فريق",
+  "church_activities_coptic_theatre": "المسرح باللغة القبطية - فريق",
+  "church_activities_operetta": "الأوبريت - فريق",
+  "church_activities_solo_individual": "مسابقة الصولو - فردي",
+  "church_activities_music_individual": "مسابقة العزف - فردي",
+  "church_activities_solo_team": "مسابقة الصولو - جماعي",
+  "church_activities_music_team": "مسابقة العزف - جماعي",
+
+  // البحوث
+  "research_theoretical": "البحث النظرى - فردي",
+  "research_cultural": "البحث الثقافى - فردي",
+
+  // الثقافية
+  "cultural_magazine_paper": "إعداد مجلة ورقية - جماعي",
+  "cultural_magazine_wall": "إعداد مجلة حائط - جماعي",
+  "cultural_field_visits": "الزيارات الميدانية - جماعي",
+
+  // الإلكترونية
+  "electronic_level1_individual": "المسابقة الإلكترونية - المستوى الأول - فردي",
+  "electronic_level2_individual": "المسابقة الإلكترونية - المستوى الثاني - فردي",
+  "electronic_level1_group": "المسابقة الإلكترونية - المستوى الأول - جماعي",
+  "electronic_level2_group": "المسابقة الإلكترونية - المستوى الثاني - جماعي",
+
+  // الفنون التشكيلية
+  "arts_kindergarten_individual": "فنون تشكيلية - حضانة - فردي",
+  "arts_grade1_2_individual": "فنون تشكيلية - أولى وثانية ابتدائي - فردي",
+  "arts_grade3_4_individual": "فنون تشكيلية - ثالثة ورابعة ابتدائي - فردي",
+  "arts_grade5_6_individual": "فنون تشكيلية - خامسة وسادسة ابتدائي - فردي",
+  "arts_kindergarten_group": "فنون تشكيلية - حضانة - جماعي",
+  "arts_grade1_2_group": "فنون تشكيلية - أولى وثانية ابتدائي - جماعي",
+  "arts_grade3_4_group": "فنون تشكيلية - ثالثة ورابعة ابتدائي - جماعي",
+  "arts_grade5_6_group": "فنون تشكيلية - خامسة وسادسة ابتدائي - جماعي",
+
+  // إبداع حر
+  "free_arts_kindergarten_individual": "إبداع حر - حضانة - فردي",
+  "free_arts_grade1_2_individual": "إبداع حر - أولى وثانية ابتدائي - فردي",
+  "free_arts_grade3_4_individual": "إبداع حر - ثالثة ورابعة ابتدائي - فردي",
+  "free_arts_grade5_6_individual": "إبداع حر - خامسة وسادسة ابتدائي - فردي",
+  "free_arts_kindergarten_group": "إبداع حر - حضانة - جماعي",
+  "free_arts_grade1_2_group": "إبداع حر - أولى وثانية ابتدائي - جماعي",
+  "free_arts_grade3_4_group": "إبداع حر - ثالثة ورابعة ابتدائي - جماعي",
+  "free_arts_grade5_6_group": "إبداع حر - خامسة وسادسة ابتدائي - جماعي",
+
+  // الأدبية
+  "literary_poetry": "الأدبية - الشعر - فردي",
+  "literary_short_story": "الأدبية - القصة القصيرة - فردي",
+
+  // الابتكارات الهندسية
+  "engineering_programming_mechanics_individual": "هندسة - برمجة وميكانيكا - فردي",
+  "engineering_programming_mechanics_group": "هندسة - برمجة وميكانيكا - جماعي",
+  "engineering_architecture_individual": "هندسة - عمارة - فردي",
+  "engineering_architecture_group": "هندسة - عمارة - جماعي",
+
+  // المسابقات الرياضية
+  "football_boys": "كرة القدم - بنين - جماعي",
+  "football_girls": "كرة القدم - بنات - جماعي",
+  "volleyball_boys": "الكرة الطائرة - بنين - جماعي",
+  "volleyball_girls": "الكرة الطائرة - بنات - جماعي",
+  "table_tennis_boys_individual": "تنس الطاولة - بنين - فردي",
+  "table_tennis_boys_team": "تنس الطاولة - بنين - جماعي",
+  "table_tennis_girls_individual": "تنس الطاولة - بنات - فردي",
+  "table_tennis_girls_team": "تنس الطاولة - بنات - جماعي",
+  "chess_boys_individual": "الشطرنج - بنين - فردي",
+  "chess_boys_team": "الشطرنج - بنين - جماعي",
+  "chess_girls_individual": "الشطرنج - بنات - فردي",
+  "chess_girls_team": "الشطرنج - بنات - جماعي",
+  "running_boys": "جري - بنين - فردي",
+  "running_girls": "جري - بنات - فردي",
 };
 
 export default function CompetitionsDetailsAdminPage() {
@@ -48,7 +128,6 @@ export default function CompetitionsDetailsAdminPage() {
 
     const fetchAllData = async () => {
       try {
-        // FAST FETCH: Fetch whole collections at once instead of individual getDocs in a loop
         const [churchCompsSnap, otherCompsSnap, churchesMainSnap] = await Promise.all([
           getDocs(collection(db, "church_competitions")),
           getDocs(collection(db, "other-competitions")),
@@ -119,10 +198,10 @@ export default function CompetitionsDetailsAdminPage() {
         exportData.push({
           "الكنيسة": c.name,
           "المشتركين": c.participants,
-          "السعر": c.price
+          "السعر": Math.round(c.price)
         });
       });
-      exportData.push({ "الإجمالي": comp.totalParticipants, "إجمالي السعر": comp.totalPrice });
+      exportData.push({ "إجمالي المشتركين": comp.totalParticipants, "إجمالي السعر": Math.round(comp.totalPrice) });
       exportData.push({});
     });
 
@@ -141,12 +220,42 @@ export default function CompetitionsDetailsAdminPage() {
 
   return (
     <div className="comp-admin-container page-transition">
-      <div className="admin-header-flex">
-        <h1 className="text-gradient">تفاصيل المسابقات</h1>
+      <header className="admin-page-header glass-card">
+        <div className="header-info">
+           <Trophy size={40} className="header-icon-glow" />
+           <div>
+              <h1 className="text-gradient">تفاصيل المسابقات</h1>
+              <p className="subtitle">عرض شامل لجميع المسابقات والمشاركات من الكنائس</p>
+           </div>
+        </div>
         <button className="btn-primary" onClick={downloadExcel} disabled={downloading}>
           <Download size={18} />
-          {downloading ? "جاري..." : "تصدير Excel"}
+          {downloading ? "جاري..." : "تنزيل Excel"}
         </button>
+      </header>
+
+      <div className="stats-summary-grid">
+         <div className="glass-card stat-summary-card">
+            <Users size={24} />
+            <div className="stat-content">
+               <span>إجمالي المسابقات</span>
+               <strong>{filteredComps.length}</strong>
+            </div>
+         </div>
+         <div className="glass-card stat-summary-card">
+            <BarChart3 size={24} />
+            <div className="stat-content">
+               <span>إجمالي المشتركين</span>
+               <strong>{filteredComps.reduce((acc, c) => acc + c.totalParticipants, 0).toLocaleString()}</strong>
+            </div>
+         </div>
+         <div className="glass-card stat-summary-card highlight">
+            <DollarSign size={24} />
+            <div className="stat-content">
+               <span>إجمالي الإيرادات (بعد الخصم)</span>
+               <strong>{Math.round(filteredComps.reduce((acc, c) => acc + c.totalPrice, 0)).toLocaleString()} جـ</strong>
+            </div>
+         </div>
       </div>
 
       <div className="search-wrapper glass-card">
@@ -159,34 +268,74 @@ export default function CompetitionsDetailsAdminPage() {
         />
       </div>
 
-      <div className="comps-grid">
-        {filteredComps.map((comp) => (
-          <div key={comp.id} className="comp-detail-card glass-card">
-            <h3>{comp.name}</h3>
-            <div className="stats-mini">
-              <div className="stat-item">
-                <span>المشتركين</span>
-                <strong>{comp.totalParticipants}</strong>
+      <nav className="quick-nav glass-card">
+        {filteredComps.map((comp, idx) => (
+          <button
+            key={idx}
+            onClick={() => document.getElementById(`comp-${idx}`)?.scrollIntoView({ behavior: "smooth" })}
+            className="nav-chip"
+          >
+            {comp.name}
+          </button>
+        ))}
+      </nav>
+
+      <div className="comps-list">
+        {filteredComps.map((comp, idx) => {
+          const dataForCount = comp.churches.filter(c => c.participants > 0);
+          const dataForPrice = comp.churches.filter(c => c.price > 0);
+
+          return (
+            <div key={idx} id={`comp-${idx}`} className="comp-full-card glass-card">
+              <div className="card-header-flex">
+                 <h2 className="comp-title">{comp.name}</h2>
+                 <div className="comp-badges">
+                    <span className="badge-count"><Users size={14} /> {comp.totalParticipants} مشترك</span>
+                    <span className="badge-price"><DollarSign size={14} /> {Math.round(comp.totalPrice).toLocaleString()} جـ</span>
+                 </div>
               </div>
-              <div className="stat-item">
-                <span>الإجمالي</span>
-                <strong>{comp.totalPrice.toLocaleString()} جـ</strong>
+
+              <div className="card-body-grid">
+                <div className="table-wrapper">
+                  <table className="comp-table">
+                    <thead>
+                      <tr>
+                        <th>الكنيسة</th>
+                        <th className="center-th">المشتركين</th>
+                        <th className="price-th">التكلفة الصافية</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {comp.churches.map((church, i) => (
+                        <tr key={i}>
+                          <td>{church.name}</td>
+                          <td className="center-td"><strong>{church.participants}</strong></td>
+                          <td className="price-td">{Math.round(church.price).toLocaleString()} جـ</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                <div className="charts-box-flex">
+                  <div className="chart-item">
+                    <h3>تحليل المشاركات</h3>
+                    <ResponsiveContainer width="100%" height={200}>
+                      <PieChart>
+                        <Pie data={dataForCount} dataKey="participants" nameKey="name" outerRadius={70} innerRadius={50} paddingAngle={5}>
+                          {dataForCount.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
+                        </Pie>
+                        <Tooltip
+                           contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
+                        />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
               </div>
             </div>
-
-            <details className="church-breakdown">
-              <summary>عرض تفاصيل الكنائس</summary>
-              <div className="church-list-mini">
-                {comp.churches.map((c, i) => (
-                  <div key={i} className="mini-row">
-                    <span>{c.name}</span>
-                    <span>{c.participants} فرد</span>
-                  </div>
-                ))}
-              </div>
-            </details>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
