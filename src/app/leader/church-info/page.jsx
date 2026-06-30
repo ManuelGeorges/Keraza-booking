@@ -13,7 +13,7 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
-import { Church, User as UserIcon, Wallet, Users, BarChart3 } from "lucide-react";
+import { Church, User as UserIcon, Wallet, Users } from "lucide-react";
 import "./page.css";
 
 const COLORS = [
@@ -224,7 +224,6 @@ export default function ChurchInfoPage() {
           return;
         }
 
-        // Parallel Fetch for church competitions
         const [churchDoc, otherDoc] = await Promise.all([
           getDoc(doc(db, "church_competitions", church)),
           getDoc(doc(db, "other-competitions", church))
@@ -254,7 +253,6 @@ export default function ChurchInfoPage() {
       } catch (err) {
         console.error("Fetch error:", err);
       } finally {
-        setLoading(false);
         setDataLoading(false);
       }
     };

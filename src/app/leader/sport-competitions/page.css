@@ -1,0 +1,159 @@
+.sport-page-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  direction: rtl;
+}
+
+.sport-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px 20px;
+  margin-bottom: 30px;
+  text-align: center;
+  gap: 16px;
+}
+
+.header-icon {
+  background: rgba(0, 113, 227, 0.1);
+  padding: 20px;
+  border-radius: 50%;
+  color: var(--primary);
+}
+
+.total-badge {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--primary);
+  color: white;
+  padding: 10px 24px;
+  border-radius: 30px;
+  font-size: 18px;
+  box-shadow: 0 4px 15px rgba(0, 113, 227, 0.3);
+}
+
+.sport-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.sport-card {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  height: 100%;
+}
+
+.card-content h3 {
+  font-size: 18px;
+  margin-bottom: 8px;
+  min-height: 44px;
+}
+
+.price-tag {
+  display: inline-block;
+  font-size: 14px;
+  color: var(--primary);
+  font-weight: 700;
+  background: rgba(0, 113, 227, 0.1);
+  padding: 4px 12px;
+  border-radius: 12px;
+}
+
+.card-actions {
+  margin-top: auto;
+}
+
+.btn-add-ghost {
+  width: 100%;
+  padding: 12px;
+  border-radius: 14px;
+  border: 2px dashed var(--glass-border);
+  background: transparent;
+  color: var(--text-muted);
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.btn-add-ghost:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+  background: rgba(0, 113, 227, 0.05);
+}
+
+.input-row {
+  display: flex;
+  gap: 10px;
+}
+
+.mini-input {
+  flex: 1;
+  padding: 10px !important;
+  font-size: 16px !important;
+  text-align: center;
+}
+
+.btn-sm {
+  padding: 10px 20px !important;
+  font-size: 14px !important;
+}
+
+.card-footer {
+  display: flex;
+  justify-content: space-between;
+  padding: 16px;
+  border-radius: 16px;
+  background: rgba(40, 167, 69, 0.08);
+  border: 1px solid rgba(40, 167, 69, 0.15);
+}
+
+.card-footer .stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.card-footer .stat span {
+  font-size: 11px;
+  color: #1e7e34;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.card-footer .stat strong {
+  font-size: 16px;
+  color: #1e7e34;
+}
+
+.error-container {
+  height: 80vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.error-card {
+  padding: 40px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  max-width: 400px;
+}
+
+@media (max-width: 768px) {
+  .sport-grid {
+    grid-template-columns: 1fr;
+  }
+}
