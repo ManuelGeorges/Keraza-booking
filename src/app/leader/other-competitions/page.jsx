@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { auth, db } from "@/lib/firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import { doc, getDoc, setDoc, onSnapshot } from "firebase/firestore";
-import { Trophy, Hash, Wallet, CheckCircle2, AlertCircle } from "lucide-react";
+import { Trophy, Wallet, CheckCircle2, AlertCircle, ChevronLeft, ChevronRight, Zap, Save, RefreshCcw } from "lucide-react";
 import "./page.css";
 
 const competitionsData = [
@@ -135,6 +135,9 @@ export default function OtherCompetitionsPage() {
   const [inputs, setInputs] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [activeSection, setActiveSection] = useState(competitionsData[0].sectionId);
+  const [savingId, setSavingId] = useState(null);
+  const navRef = useRef(null);
 
   useEffect(() => {
     const unsubscribeAuth = onAuthStateChanged(auth, async (user) => {
@@ -213,6 +216,26 @@ export default function OtherCompetitionsPage() {
     return () => unsubscribeData();
   }, [userChurch]);
 
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setActiveSection(entry.target.id);
+          }
+        });
+      },
+      { threshold: 0.3, rootMargin: "-100px 0px -50% 0px" }
+    );
+
+    competitionsData.forEach((section) => {
+      const el = document.getElementById(section.sectionId);
+      if (el) observer.observe(el);
+    });
+
+    return () => observer.disconnect();
+  }, [loading]);
+
   function handleInputChange(id, value) {
     if (!/^[0-9]*$/.test(value)) return;
     setInputs((prev) => ({ ...prev, [id]: value }));
@@ -233,10 +256,12 @@ export default function OtherCompetitionsPage() {
     } else if (isTeamCheckbox) {
       count = inputs[id] ? 1 : 0;
     } else {
-      count = parseInt(inputs[id] || "0", 10);
+      const val = inputs[id] !== undefined ? inputs[id] : (counts.competitions[id]?.count || 0);
+      count = parseInt(val || "0", 10);
       if (isNaN(count) || count < 0) return;
     }
 
+    setSavingId(id);
     try {
       const docRef = doc(db, "other-competitions", userChurch);
       const docSnap = await getDoc(docRef);
@@ -255,13 +280,25 @@ export default function OtherCompetitionsPage() {
       );
 
       await setDoc(docRef, currentData, { merge: true });
-      if (!item.isTeamCheckbox && id !== "festival_subscription") {
-        setInputs((prev) => ({ ...prev, [id]: "" }));
-      }
+      // Clear input state for this ID after saving to hide the button
+      setInputs((prev) => {
+        const next = { ...prev };
+        delete next[id];
+        return next;
+      });
     } catch {
       setError("حدث خطأ أثناء الحفظ.");
+    } finally {
+      setSavingId(null);
     }
   }
+
+  const scrollNav = (direction) => {
+    if (navRef.current) {
+      const scrollAmount = 300;
+      navRef.current.scrollBy({ left: direction === 'left' ? -scrollAmount : scrollAmount, behavior: 'smooth' });
+    }
+  };
 
   if (loading) return (
     <div className="loading-container">
@@ -281,21 +318,44 @@ export default function OtherCompetitionsPage() {
   return (
     <div className="other-page-container page-transition">
       <header className="other-header glass-card">
-        <div className="header-icon"><Trophy size={40} /></div>
+        <div className="header-icon-box">
+          <Trophy size={48} className="trophy-icon" />
+          <Zap size={20} className="zap-icon" />
+        </div>
         <h1 className="text-gradient">المسابقات الأخرى</h1>
-        <div className="total-badge">
+        <div className="total-badge-premium">
           <Wallet size={20} />
-          <span>التكلفة الإجمالية: <strong>{counts.totalPayment.toLocaleString()} جـ</strong></span>
+          <span>إجمالي التكلفة: <strong>{counts.totalPayment.toLocaleString()} جـ</strong></span>
         </div>
       </header>
 
-      <nav className="other-quick-nav glass-card">
-        {competitionsData.map(({ sectionId, sectionTitle }) => (
-          <a key={sectionId} href={`#${sectionId}`} className="nav-chip">
-            {sectionTitle}
-          </a>
-        ))}
-      </nav>
+      <div className="nav-container-wrapper">
+        <button className="nav-arrow left" onClick={() => scrollNav('left')} aria-label="Scroll Left">
+          <ChevronLeft size={24} />
+        </button>
+        <nav ref={navRef} className="other-quick-nav">
+          {competitionsData.map(({ sectionId, sectionTitle }) => (
+            <button
+              key={sectionId}
+              onClick={() => {
+                const el = document.getElementById(sectionId);
+                if (el) {
+                  window.scrollTo({
+                    top: el.offsetTop - 120,
+                    behavior: "smooth"
+                  });
+                }
+              }}
+              className={`nav-chip ${activeSection === sectionId ? 'active' : ''}`}
+            >
+              {sectionTitle}
+            </button>
+          ))}
+        </nav>
+        <button className="nav-arrow right" onClick={() => scrollNav('right')} aria-label="Scroll Right">
+          <ChevronRight size={24} />
+        </button>
+      </div>
 
       <div className="other-sections-list">
         {competitionsData.map(({ sectionId, sectionTitle, items }) => (
@@ -305,6 +365,17 @@ export default function OtherCompetitionsPage() {
               {items.map(({ id, name, pricePerUnit, isTeamCheckbox }) => {
                 const isFestival = id === "festival_subscription";
                 const competitionCount = counts.competitions[id]?.count || 0;
+
+                // Detection logic: has the data changed compared to Firestore?
+                let hasChanged = false;
+                if (isTeamCheckbox) {
+                  const currentBool = competitionCount > 0;
+                  const inputBool = inputs[id] !== undefined ? inputs[id] : currentBool;
+                  hasChanged = inputs[id] !== undefined && inputBool !== currentBool;
+                } else if (!isFestival) {
+                  const inputVal = inputs[id];
+                  hasChanged = inputVal !== undefined && inputVal !== competitionCount.toString();
+                }
 
                 return (
                   <div key={id} className="competition-card glass-card">
@@ -317,36 +388,60 @@ export default function OtherCompetitionsPage() {
                       {isFestival ? (
                         <div className="fixed-badge"><CheckCircle2 size={16} /> اشتراك مفعّل تلقائياً</div>
                       ) : isTeamCheckbox ? (
-                        <div className="checkbox-action">
-                          <label className="apple-switch">
-                            <input
-                              type="checkbox"
-                              checked={!!inputs[id]}
-                              onChange={(e) => handleCheckboxChange(id, e.target.checked)}
-                            />
-                            <span className="slider"></span>
-                          </label>
-                          <span>مشارك بالفريق؟</span>
-                          <button className="btn-save-mini" onClick={() => handleSubmit(id)}>حفظ</button>
+                        <div className="checkbox-action-wrapper">
+                          <div className="checkbox-action">
+                            <label className="apple-switch">
+                              <input
+                                type="checkbox"
+                                checked={inputs[id] !== undefined ? inputs[id] : (competitionCount > 0)}
+                                onChange={(e) => handleCheckboxChange(id, e.target.checked)}
+                              />
+                              <span className="slider"></span>
+                            </label>
+                            <span className="action-label">مشارك بالفريق؟</span>
+                          </div>
+                          <button
+                            className={`btn-liquid-save ${hasChanged ? 'visible' : ''}`}
+                            onClick={() => handleSubmit(id)}
+                            disabled={savingId === id}
+                          >
+                            {savingId === id ? <RefreshCcw className="spin" size={16} /> : <Save size={16} />}
+                            <span>حفظ التعديل</span>
+                          </button>
                         </div>
                       ) : (
-                        <div className="input-action">
-                          <input
-                            type="number"
-                            placeholder="العدد"
-                            className="mini-input"
-                            value={inputs[id] ?? ""}
-                            onChange={(e) => handleInputChange(id, e.target.value)}
-                          />
-                          <button className="btn-primary btn-sm" onClick={() => handleSubmit(id)}>تحديث</button>
+                        <div className="input-action-wrapper">
+                          <div className="input-action">
+                            <input
+                              type="number"
+                              placeholder="العدد"
+                              className="mini-input-premium"
+                              value={inputs[id] !== undefined ? inputs[id] : (competitionCount || "")}
+                              onChange={(e) => handleInputChange(id, e.target.value)}
+                            />
+                          </div>
+                          <button
+                            className={`btn-liquid-update ${hasChanged ? 'visible' : ''}`}
+                            onClick={() => handleSubmit(id)}
+                            disabled={savingId === id}
+                          >
+                            {savingId === id ? <RefreshCcw className="spin" size={16} /> : <Zap size={16} />}
+                            <span>تحديث البيانات</span>
+                          </button>
                         </div>
                       )}
                     </div>
 
                     {competitionCount > 0 && !isFestival && (
-                      <div className="card-status success">
-                        <span>العدد: <strong>{competitionCount}</strong></span>
-                        <span>الإجمالي: <strong>{counts.competitions[id].totalPrice.toLocaleString()} جـ</strong></span>
+                      <div className="card-status success-premium">
+                        <div className="status-item">
+                           <span className="status-label">المسجل حالياً:</span>
+                           <strong>{competitionCount} مشارك</strong>
+                        </div>
+                        <div className="status-item">
+                           <span className="status-label">إجمالي التكلفة:</span>
+                           <strong>{counts.competitions[id].totalPrice.toLocaleString()} جـ</strong>
+                        </div>
                       </div>
                     )}
                   </div>
